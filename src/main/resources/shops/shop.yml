@@ -1,0 +1,18 @@
+Settings:
+  command: shop
+  aliases: []
+  # Para não usar, basta remover.
+  open-permission: 'shop.use'
+  permission-message: '&cVocê não possui permissão para abrir essa loja!'
+
+Inventory:
+  title: 'Shop'
+  size: 54
+  items:
+    1:
+      action: 'OPEN:example'
+      type: DIAMOND_SWORD
+      name: '&aExemplo'
+      lore:
+        - '&7Clique para abrir a'
+        - '&7categoria exemplo!'

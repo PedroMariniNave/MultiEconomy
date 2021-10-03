@@ -1,0 +1,104 @@
+MySQL:
+  enabled: false
+  host: 'localhost'
+  database: 'db'
+  username: 'user'
+  password: 'pass'
+  port: 3306
+
+Settings:
+  # A cada quantos segundos todos dados
+  # serão salvos na database.
+  save-interval: 600
+  # Economia que vai ser compatível com o Vault.
+  vault-currency: coins
+  admin-permission: multieconomy.admin
+  permission-message: '&cVocê não possui permissão para executar esse comando!'
+
+Messages:
+  never-seen: '&6&lVoltz&f&lMC &8&l➜ &cEsse jogador nunca entrou no servidor!'
+  invalid-amount: '&6&lVoltz&f&lMC &8&l➜ &cValor inválido!'
+  min-value: '&6&lVoltz&f&lMC &8&l➜ &cA quantia precisa ser acima de {tax}!'
+  insufficient-currency: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui essa quantia! ({has}/{need})'
+  need-space: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui espaço suficiente no seu inventário! ({has}/{need})'
+  send-to-yourself: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode enviar {currency_name} para si mesmo!'
+  sent:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7Transação efetuada com sucesso! Confira abaixo as informações:'
+    - ''
+    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Enviado para: &f{target}'
+    - ' &8▶ &7Saldo enviado: &f{amount_display}'
+    - ' &8▶ &7Saldo recebido: &f{received_display} &7(&f-{tax}%&7)'
+    - ' &8▶ &7ID: &f#{id}'
+    - ''
+
+  received:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7Uma nova transação foi efetuada! Confira abaixo as informações:'
+    - ''
+    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Feita por: &f{actor}'
+    - ' &8▶ &7Saldo recebido: &f{received}'
+    - ' &8▶ &7ID: &f#{id}'
+    - ''
+
+  confirm:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7Digite o comando novamente para confirmar a transação!'
+    - ''
+    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Enviando para: &f{target}'
+    - ' &8▶ &7Saldo a ser enviado: &f{amount}'
+    - ' &8▶ &7Saldo a ser recebido: &f{received} &7(&f-{tax}%&7)'
+    - ''
+
+  withdraw:
+    - '&6&lVoltz&f&lMC &8&l➜ &7Digite no chat quanto deseja retirar!'
+    - '&6&lVoltz&f&lMC &8&l➜ &7Lembre-se que há uma taxa de &f{tax}%&7!'
+
+  choose-amount:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7Digite no chat quantos itens deseja comprar!'
+    - ''
+    - ' &8▶ &7Comprando: &f{item}'
+    - ' &8▶ &7Preço: {price}'
+    - ''
+  successful-purchased:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7Compra efetuada com sucesso!'
+    - ''
+    - ' &8▶ &7Item adquirido: &f{item}'
+    - ' &8▶ &7Quantia: &fx{amount}'
+    - ' &8▶ &7Preço: {price}'
+    - ''
+
+Logs:
+  pay: '[{date}] - {currency_name}: PAY | {actor} ({actor_ip}) -> {target} ({target_ip}) | {amount} | [ID: {id}]'
+  item: '[{date}] - {currency_name}: ITEM | {actor} ({actor_ip}) -> {target} ({target_ip}) | {amount}'
+  edit: '[{date}] - {currency_name}: {action} | {actor} ({actor_ip}) -> {target} ({target_ip}) | {amount}'
+  withdraw: '[{date}] - {currency_name}: WITHDRAW | {actor} ({actor_ip}) | {amount} | [ID: {id}]'
+  deposit: '[{date}] - {currency_name}: DEPOSIT | {actor} ({actor_ip}) | {amount} | [ID: {id}]'
+
+Next-Page:
+  type: ARROW
+  name: '&aPróxima Página'
+  slot: 26
+
+Previous-Page:
+  type: ARROW
+  name: '&cPágina Anterior'
+  slot: 18
+
+Number-Formatter:
+  - "k"
+  - "M"
+  - "B"
+  - "T"
+  - "Q"
+  - "QQ"
+  - "S"
+  - "SS"
+  - "O"
+  - "N"
+  - "D"

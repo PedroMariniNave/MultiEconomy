@@ -1,0 +1,37 @@
+Inventory:
+  size: 27
+  items:
+    1:
+      action: WITHDRAW
+      type: PLAYER_HEAD
+      owner: "{player}"
+      name: "{color}{player}"
+      lore:
+        - '&7Abaixo estão suas informações:'
+        - ''
+        - ' &8▶ &7Saldo disponível: {amount_display}'
+        - ''
+        - '&7Clique para criar um cheque!'
+      slot: 11
+    2:
+      action: TRANSACTIONS
+      type: PLAYER_HEAD
+      owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTgyNTQxOWU0MjlhZmMwNDBjOWU2OGIxMDUyM2I5MTdkN2I4MDg3ZDYzZTc2NDhiMTA4MDdkYThiNzY4ZWUifX19
+      name: "{color}Histórico"
+      lore:
+        - '&7Nesse menu você poderá ver'
+        - '&7as suas últimas transações!'
+        - ''
+        - '&7Clique para acessar!'
+      slot: 14
+    3:
+      action: TOP
+      type: PLAYER_HEAD
+      owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjRhZjhkNTc1ZjBhNTI0ZWY2NmEyMTU3M2U4YTRhOGFjN2Q2NDBiMDBkOThlMmU5Mzc0ZTYwNDcwZTdjODZmMCJ9fX0=
+      name: "{color}Jogadores mais ricos"
+      lore:
+        - '&7Nesse menu você poderá ver'
+        - '&7os jogadores mais ricos!'
+        - ''
+        - '&7Clique para acessar!'
+      slot: 15

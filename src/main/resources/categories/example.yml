@@ -1,0 +1,45 @@
+Settings:
+  command: example
+  aliases: []
+  # Para não usar, basta remover.
+  open-permission: 'loja.exemplo'
+  permission-message: '&cVocê não possui permissão para abrir essa loja!'
+
+Inventory:
+  title: 'Loja Exemplo'
+  size: 54
+  item-slots: 10, 11, 12
+  next-page-slot: 26 # só vai aparecer se tiver próxima página
+  previous-page-slot: 18 # só vai aparecer se tiver página anterior
+  items:
+    1:
+      # Moeda que vai ser usada
+      currency: coins
+      # Preço do item
+      price: 20
+      # Item que vai mostrar no menu
+      display:
+        type: EMERALD
+        name: '&2Esmeralda'
+        lore:
+          - '&7Preço: {price}'
+      # Item que o jogador vai receber
+      shop-item:
+        type: EMERALD
+        name: '&2Esmeralda'
+        lore:
+          - '&7Wooow esmeralda'
+    2:
+      # Opcional usado para executar comandos na quantia certa
+      default-amount: 4
+      currency: coins
+      price: 20
+      display:
+        type: EMERALD
+        name: '&2Esmeralda'
+        lore:
+          - '&7Preço: {price}'
+        amount: 4
+      # Comandos que serão executados
+      commands:
+        - 'give {player} emerald {amount}'
