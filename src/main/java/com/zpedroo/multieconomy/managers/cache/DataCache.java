@@ -19,6 +19,7 @@ public class DataCache {
     private Map<String, Shop> shops;
 
     public DataCache() {
+        this.playerData = new HashMap<>(64);
         this.currencies = new HashMap<>(4);
         this.categories = new HashMap<>(8);
         this.shops = new HashMap<>(4);

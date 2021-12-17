@@ -8,6 +8,8 @@ import java.util.List;
 
 public class Messages {
 
+    public static final String BUY_ALL_ZERO = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.buy-all-zero"));
+
     public static final String NEVER_SEEN = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.never-seen"));
 
     public static final String INVALID_AMOUNT = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.invalid-amount"));
@@ -24,13 +26,13 @@ public class Messages {
 
     public static final List<String> RECEIVED = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.received"));
 
-    public static final List<String> CONFIRM = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.confirm"));
-
     public static final List<String> WITHDRAW = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.withdraw"));
 
     public static final List<String> CHOOSE_AMOUNT = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.choose-amount"));
 
     public static final List<String> SUCCESSFUL_PURCHASED = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.successful-purchased"));
+
+    public static final List<String> CONFIRM = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.confirm"));
 
     private static String getColored(String str) {
         return ChatColor.translateAlternateColorCodes('&', str);

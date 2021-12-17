@@ -2,7 +2,7 @@ Inventory:
   size: 27
   items:
     1:
-      type: PLAYER_HEAD
+      type: SKULL_ITEM
       owner: "{player}"
       name: "{color}Informações de {player}"
       lore:

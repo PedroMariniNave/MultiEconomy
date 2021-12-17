@@ -60,11 +60,17 @@ public class TransactionManager {
         };
 
         switch (transaction.getType()) {
-            case ADD -> log = StringUtils.replaceEach(Logs.PAY, placeholders, replaces);
-            case DEPOSIT -> log = StringUtils.replaceEach(Logs.DEPOSIT, placeholders, replaces);
-            case WITHDRAW -> log = StringUtils.replaceEach(Logs.WITHDRAW, placeholders, replaces);
+            case ADD:
+                log = StringUtils.replaceEach(Logs.PAY, placeholders, replaces);
+                break;
+            case DEPOSIT:
+                log = StringUtils.replaceEach(Logs.DEPOSIT, placeholders, replaces);
+                break;
+            case WITHDRAW:
+                log = StringUtils.replaceEach(Logs.WITHDRAW, placeholders, replaces);
+                break;
         }
 
-        LogManager.getInstance().addLog(log);
+        if (log != null) LogManager.getInstance().addLog(log);
     }
 }

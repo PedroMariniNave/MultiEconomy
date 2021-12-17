@@ -18,7 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
@@ -28,11 +27,9 @@ public class PlayerGeneralListeners implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_AIR) return;
+        if (event.getItem() == null || event.getItem().getType().equals(Material.AIR)) return;
 
-        Player player = event.getPlayer();
-        ItemStack item = event.getHand() == EquipmentSlot.HAND ? player.getInventory().getItemInMainHand() : player.getInventory().getItemInOffHand();
-        if (item.getType().equals(Material.AIR)) return;
-
+        ItemStack item = event.getItem().clone();
         NBTItem nbt = new NBTItem(item);
         if (!nbt.hasKey("CurrencyName")) return;
 
@@ -44,10 +41,12 @@ public class PlayerGeneralListeners implements Listener {
         BigInteger amount = new BigInteger(nbt.getString("CurrencyAmount"));
         if (amount.signum() <= 0) return;
 
+        Player player = event.getPlayer();
         PlayerData data = DataManager.getInstance().load(player.getUniqueId());
         if (data == null) return;
 
-        item.setAmount(item.getAmount() - 1);
+        item.setAmount(1);
+        player.getInventory().removeItem(item);
 
         data.addCurrencyAmount(currency, amount);
 
@@ -56,7 +55,7 @@ public class PlayerGeneralListeners implements Listener {
         String subtitle = StringUtils.replaceEach(titles[1], new String[] { "{amount}" }, new String[] { NumberFormatter.getInstance().format(amount) });
 
         player.sendTitle(title, subtitle);
-        player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5f, 10f);
+        player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
 
         Integer id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getFileName()) + 1;
         data.addTransaction(currency, new Transaction(player, null, amount, TransactionType.DEPOSIT, System.currentTimeMillis(), id));

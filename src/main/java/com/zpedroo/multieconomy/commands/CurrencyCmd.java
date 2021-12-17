@@ -51,10 +51,9 @@ public class CurrencyCmd implements CommandExecutor {
             if (player == null) return true;
 
             switch (args[0].toUpperCase()) {
-                case "TOP", "TOP10" -> {
+                case "TOP":
                     Menus.getInstance().openTopMenu(player, currency);
                     return true;
-                }
             }
 
             target = Bukkit.getOfflinePlayer(args[0]);
@@ -72,7 +71,7 @@ public class CurrencyCmd implements CommandExecutor {
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
             switch (args[0].toUpperCase()) {
-                case "ITEM" -> {
+                case "ITEM":
                     if (!sender.hasPermission(Settings.ADMIN_PERMISSION)) {
                         sender.sendMessage(Settings.PERMISSION_MESSAGE);
                         return true;
@@ -110,9 +109,9 @@ public class CurrencyCmd implements CommandExecutor {
                             NumberFormatter.getInstance().format(amount)
                     }));
                     return true;
-                }
-
-                case "SEND", "PAY", "ENVIAR" -> {
+                case "SEND":
+                case "PAY":
+                case "ENVIAR":
                     if (player == null) return true;
 
                     target = Bukkit.getOfflinePlayer(args[1]);
@@ -163,8 +162,6 @@ public class CurrencyCmd implements CommandExecutor {
                     confirm.put(player, transactionConfirm);
 
                     for (String msg : Messages.CONFIRM) {
-                        if (msg == null) continue;
-
                         player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                                 "{target}",
                                 "{currency}",
@@ -194,9 +191,10 @@ public class CurrencyCmd implements CommandExecutor {
                         }));
                     }
                     return true;
-                }
 
-                case "GIVE", "ADD", "SET" -> {
+                case "GIVE":
+                case "ADD":
+                case "SET":
                     if (!sender.hasPermission(Settings.ADMIN_PERMISSION)) {
                         sender.sendMessage(Settings.PERMISSION_MESSAGE);
                         return true;
@@ -246,7 +244,6 @@ public class CurrencyCmd implements CommandExecutor {
                             NumberFormatter.getInstance().format(amount)
                     }));
                     return true;
-                }
             }
         }
 
@@ -293,11 +290,11 @@ public class CurrencyCmd implements CommandExecutor {
                 return;
             }
 
-            Integer id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getName()) + 1;
+            int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getName()) + 1;
 
             CurrencyAPI.removeCurrencyAmount(player, currency, amount);
-            CurrencyAPI.addCurrencyAmount(player, currency, toGive);
-            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+            CurrencyAPI.addCurrencyAmount(target, currency, toGive);
+            player.playSound(player.getLocation(), Sound.LEVEL_UP, 1f, 1f);
 
             for (String msg : Messages.SENT) {
                 player.sendMessage(StringUtils.replaceEach(msg, new String[]{
@@ -326,14 +323,14 @@ public class CurrencyCmd implements CommandExecutor {
                         }, new String[]{
                                 NumberFormatter.getInstance().format(toGive)
                         }),
-                        id.toString(),
+                        String.valueOf(id),
                         currency.getTaxPerTransaction().toString()
                 }));
             }
 
             Player targetPlayer = target.getPlayer();
             if (targetPlayer != null) {
-                targetPlayer.playSound(targetPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                targetPlayer.playSound(targetPlayer.getLocation(), Sound.LEVEL_UP, 1f, 1f);
                 for (String msg : Messages.RECEIVED) {
                     targetPlayer.sendMessage(StringUtils.replaceEach(msg, new String[]{
                             "{currency}",
@@ -361,7 +358,7 @@ public class CurrencyCmd implements CommandExecutor {
                             }, new String[]{
                                     NumberFormatter.getInstance().format(toGive)
                             }),
-                            id.toString(),
+                            String.valueOf(id),
                             currency.getTaxPerTransaction().toString()
                     }));
                 }

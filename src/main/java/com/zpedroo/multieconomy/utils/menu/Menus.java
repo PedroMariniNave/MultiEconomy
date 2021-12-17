@@ -17,28 +17,23 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Menus {
+public class Menus extends InventoryUtils {
 
     private static Menus instance;
     public static Menus getInstance() { return instance; }
-
-    private InventoryUtils inventoryUtils;
 
     private ItemStack nextPageItem;
     private ItemStack previousPageItem;
 
     public Menus() {
         instance = this;
-        this.inventoryUtils = new InventoryUtils();
         this.nextPageItem = ItemBuilder.build(FileUtils.get().getFile(FileUtils.Files.CONFIG).get(), "Next-Page").build();
         this.previousPageItem = ItemBuilder.build(FileUtils.get().getFile(FileUtils.Files.CONFIG).get(), "Previous-Page").build();
     }
@@ -46,10 +41,10 @@ public class Menus {
     public void openMainMenu(Player player, Currency currency) {
         FileUtils.Files file = FileUtils.Files.MAIN;
 
-        int size = FileUtils.get().getInt(file, "Inventory.size");
         String title = currency.getInventoryTitles().get(file.getName().toLowerCase());
+        int size = FileUtils.get().getInt(file, "Inventory.size");
 
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        InventoryBuilder inventory = new InventoryBuilder(title, size);
 
         for (String str : FileUtils.get().getSection(file, "Inventory.items")) {
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Inventory.items." + str, new String[]{
@@ -70,9 +65,9 @@ public class Menus {
             int slot = FileUtils.get().getInt(file, "Inventory.items." + str + ".slot");
             String action = FileUtils.get().getString(file, "Inventory.items." + str + ".action");
 
-            switch (action) {
-                case "WITHDRAW":
-                    inventoryUtils.addAction(inventory, item, () -> {
+            inventory.addItem(item, slot, () -> {
+                switch (action) {
+                    case "WITHDRAW":
                         player.closeInventory();
                         WithdrawListeners.getWithdrawing().put(player, currency);
                         for (int i = 0; i < 25; ++i) {
@@ -88,33 +83,27 @@ public class Menus {
                                     currency.getTaxPerTransaction().toString()
                             }));
                         }
-                    }, InventoryUtils.ActionType.ALL_CLICKS);
-                    break;
-                case "TRANSACTIONS":
-                    inventoryUtils.addAction(inventory, item, () -> {
+                        break;
+                    case "TRANSACTIONS":
                         openTransactionsMenu(player, currency);
-                    }, InventoryUtils.ActionType.ALL_CLICKS);
-                    break;
-                case "TOP":
-                    inventoryUtils.addAction(inventory, item, () -> {
+                        break;
+                    case "TOP":
                         openTopMenu(player, currency);
-                    }, InventoryUtils.ActionType.ALL_CLICKS);
-                    break;
-            }
-
-            inventory.setItem(slot, item);
+                        break;
+                }
+            }, ActionType.ALL_CLICKS);
         }
 
-        player.openInventory(inventory);
+        inventory.open(player);
     }
 
     public void openInfoMenu(Player player, OfflinePlayer target, Currency currency) {
         FileUtils.Files file = FileUtils.Files.INFO;
 
-        int size = FileUtils.get().getInt(file, "Inventory.size");
         String title = currency.getInventoryTitles().get(file.getName().toLowerCase());
+        int size = FileUtils.get().getInt(file, "Inventory.size");
 
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        InventoryBuilder inventory = new InventoryBuilder(title, size);
 
         for (String str : FileUtils.get().getSection(file, "Inventory.items")) {
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Inventory.items." + str, new String[]{
@@ -134,29 +123,29 @@ public class Menus {
             }).build();
             int slot = FileUtils.get().getInt(file, "Inventory.items." + str + ".slot");
 
-            inventoryUtils.addAction(inventory, item, null, InventoryUtils.ActionType.ALL_CLICKS);
-
-            inventory.setItem(slot, item);
+            inventory.addItem(item, slot);
         }
 
-        player.openInventory(inventory);
+        inventory.open(player);
     }
 
     public void openTransactionsMenu(Player player, Currency currency) {
         FileUtils.Files file = FileUtils.Files.TRANSACTIONS;
 
-        int size = FileUtils.get().getInt(file, "Inventory.size");
         String title = currency.getInventoryTitles().get(file.getName().toLowerCase());
+        int size = FileUtils.get().getInt(file, "Inventory.size");
 
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        int nextPageSlot = FileUtils.get().getInt(file, "Inventory.next-page-slot");
+        int previousPageSlot = FileUtils.get().getInt(file, "Inventory.previous-page-slot");
+
+        InventoryBuilder inventory = new InventoryBuilder(title, size, previousPageItem, previousPageSlot, nextPageItem, nextPageSlot);
         List<Transaction> transactions = CurrencyAPI.getCurrencyTransactions(player, currency);
-        List<ItemBuilder> builders = new ArrayList<>(transactions.size());
 
         if (transactions.isEmpty()) {
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Empty").build();
             int slot = FileUtils.get().getInt(file, "Empty.slot");
 
-            builders.add(ItemBuilder.build(item, slot, null));
+            inventory.addItem(item, slot);
         } else {
             int i = -1;
             String[] slots = FileUtils.get().getString(file, "Inventory.slots").replace(" ", "").split(",");
@@ -189,23 +178,20 @@ public class Menus {
                 }).build();
                 int slot = Integer.parseInt(slots[i]);
 
-                builders.add(ItemBuilder.build(item, slot, null));
+                inventory.addItem(item, slot);
             }
         }
 
-        int nextPageSlot = FileUtils.get().getInt(file, "Inventory.next-page-slot");
-        int previousPageSlot = FileUtils.get().getInt(file, "Inventory.previous-page-slot");
-
-        InventoryBuilder.build(player, inventory, title, builders, nextPageSlot, previousPageSlot, nextPageItem, previousPageItem);
+        inventory.open(player);
     }
 
     public void openShopMenu(Player player, Shop shop) {
         FileConfiguration file = shop.getFile();
 
-        int size = file.getInt("Inventory.size");
         String title = ChatColor.translateAlternateColorCodes('&', file.getString("Inventory.title"));
+        int size = file.getInt("Inventory.size");
 
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        InventoryBuilder inventory = new InventoryBuilder(title, size);
 
         Collection<Currency> currencies = DataManager.getInstance().getCache().getCurrencies().values();
 
@@ -219,72 +205,70 @@ public class Menus {
                     new String[]{ NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(player, currency)) }));
         }
 
-        for (String str :file.getConfigurationSection("Inventory.items").getKeys(false)) {
+        for (String str : file.getConfigurationSection("Inventory.items").getKeys(false)) {
             ItemStack item = ItemBuilder.build(file, "Inventory.items." + str,
                     placeholders.toArray(new String[placeholders.size()]),
                     replaces.toArray(new String[replaces.size()])).build();
             int slot = file.getInt("Inventory.items." + str + ".slot");
             String action = file.getString("Inventory.items." + str + ".action", "NULL");
 
-            if (StringUtils.contains(action, ":")) {
-                String[] split = action.split(":");
-                String command = split.length > 1 ? split[1] : null;
-                if (command == null) continue;
+            inventory.addItem(item, slot, () -> {
+                if (StringUtils.contains(action, ":")) {
+                    String[] split = action.split(":");
+                    String command = split.length > 1 ? split[1] : null;
+                    if (command == null) return;
 
-                switch (split[0].toUpperCase()) {
-                    case "OPEN" -> inventoryUtils.addAction(inventory, item, () -> {
-                        Category toOpen = DataManager.getInstance().getCache().getCategories().get(split[1]);
+                    switch (split[0].toUpperCase()) {
+                        case "OPEN":
+                            Category toOpen = DataManager.getInstance().getCache().getCategories().get(split[1]);
 
-                        if (toOpen != null) openCategoryMenu(player, toOpen);
-                    }, InventoryUtils.ActionType.ALL_CLICKS);
+                            if (toOpen != null) openCategoryMenu(player, toOpen);
+                            break;
+                        case "PLAYER":
+                            player.chat("/" + command);
+                            player.closeInventory();
+                            break;
 
-                    case "PLAYER" -> inventoryUtils.addAction(inventory, item, () -> {
-                        player.chat("/" + command);
-                        player.closeInventory();
-                    }, InventoryUtils.ActionType.ALL_CLICKS);
-
-                    case "CONSOLE" -> inventoryUtils.addAction(inventory, item, () -> {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(command, new String[]{
-                                "{player}"
-                        }, new String[]{
-                                player.getName()
-                        }));
-                        player.closeInventory();
-                    }, InventoryUtils.ActionType.ALL_CLICKS);
+                        case "CONSOLE":
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(command, new String[]{
+                                    "{player}"
+                            }, new String[]{
+                                    player.getName()
+                            }));
+                            player.closeInventory();
+                            break;
+                    }
                 }
-            }
-
-            inventory.setItem(slot, item);
+            }, ActionType.ALL_CLICKS);
         }
 
-        player.openInventory(inventory);
+        inventory.open(player);
     }
 
     public void openCategoryMenu(Player player, Category category) {
         FileConfiguration file = category.getFile();
 
-        int size = file.getInt("Inventory.size");
         String title = ChatColor.translateAlternateColorCodes('&', file.getString("Inventory.title"));
+        int size = file.getInt("Inventory.size");
 
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        int nextPageSlot = file.getInt("Inventory.next-page-slot");
+        int previousPageSlot = file.getInt("Inventory.previous-page-slot");
+
+        InventoryBuilder inventory = new InventoryBuilder(title, size, previousPageItem, previousPageSlot, nextPageItem, nextPageSlot);
 
         int i = -1;
         String[] slots = file.getString("Inventory.item-slots").replace(" ", "").split(",");
-        List<ItemBuilder> builders = new ArrayList<>(64);
         for (CategoryItem item : category.getItems()) {
             if (item == null) continue;
             if (++i >= slots.length) i = 0;
 
             ItemStack display = item.getDisplay().clone();
             int slot = Integer.parseInt(slots[i]);
-            List<InventoryUtils.Action> actions = new ArrayList<>();
 
-            actions.add(new InventoryUtils.Action(InventoryUtils.ActionType.ALL_CLICKS, display, () -> {
+            inventory.addItem(display, slot, () -> {
                 player.closeInventory();
                 ShopListeners.getPlayerChat().put(player, new ShopListeners.PlayerChat(player, item));
                 for (String msg : Messages.CHOOSE_AMOUNT) {
-                    if (msg == null) continue;
-
                     player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                             "{item}",
                             "{price}"
@@ -297,9 +281,7 @@ public class Menus {
                             })
                     }));
                 }
-            }));
-
-            builders.add(ItemBuilder.build(display, slot, actions));
+            }, ActionType.ALL_CLICKS);
         }
 
         if (file.contains("Inventory.displays")) {
@@ -310,55 +292,49 @@ public class Menus {
                 int slot = file.getInt("Inventory.displays." + display + ".slot");
                 String action = file.getString("Inventory.displays." + display + ".action", "NULL");
 
-                if (StringUtils.contains(action, ":")) {
-                    String[] split = action.split(":");
-                    String command = split.length > 1 ? split[1] : null;
-                    if (command == null) continue;
+                inventory.addDefaultItem(item, slot, () -> {
+                    if (StringUtils.contains(action, ":")) {
+                        String[] split = action.split(":");
+                        String command = split.length > 1 ? split[1] : null;
+                        if (command == null) return;
 
-                    switch (split[0].toUpperCase()) {
-                        case "CATEGORY" -> inventoryUtils.addAction(inventory, item, () -> {
-                            Category toOpen = DataManager.getInstance().getCache().getCategories().get(split[1]);
+                        switch (split[0].toUpperCase()) {
+                            case "CATEGORY":
+                                Category categoryToOpen = DataManager.getInstance().getCache().getCategories().get(split[1]);
 
-                            if (toOpen != null) openCategoryMenu(player, toOpen);
-                        }, InventoryUtils.ActionType.ALL_CLICKS);
+                                if (categoryToOpen != null) openCategoryMenu(player, categoryToOpen);
+                                break;
+                            case "SHOP":
+                                Shop shopToOpen = DataManager.getInstance().getCache().getShops().get(split[1]);
 
-                        case "SHOP" -> inventoryUtils.addAction(inventory, item, () -> {
-                            Shop toOpen = DataManager.getInstance().getCache().getShops().get(split[1]);
-
-                            if (toOpen != null) openShopMenu(player, toOpen);
-                        }, InventoryUtils.ActionType.ALL_CLICKS);
-
-                        case "PLAYER" -> inventoryUtils.addAction(inventory, item, () -> {
-                            player.chat("/" + command);
-                        }, InventoryUtils.ActionType.ALL_CLICKS);
-
-                        case "CONSOLE" -> inventoryUtils.addAction(inventory, item, () -> {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(command, new String[]{
-                                    "{player}"
-                            }, new String[]{
-                                    player.getName()
-                            }));
-                        }, InventoryUtils.ActionType.ALL_CLICKS);
+                                if (shopToOpen != null) openShopMenu(player, shopToOpen);
+                                break;
+                            case "PLAYER":
+                                player.chat("/" + command);
+                                break;
+                            case "CONSOLE":
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(command, new String[]{
+                                        "{player}"
+                                }, new String[]{
+                                        player.getName()
+                                }));
+                                break;
+                        }
                     }
-                }
-
-                inventory.setItem(slot, item);
+                }, ActionType.ALL_CLICKS);
             }
         }
 
-        int nextPageSlot = file.getInt("Inventory.next-page-slot");
-        int previousPageSlot = file.getInt("Inventory.previous-page-slot");
-
-        InventoryBuilder.build(player, inventory, title, builders, nextPageSlot, previousPageSlot, nextPageItem, previousPageItem);
+        inventory.open(player);
     }
 
     public void openTopMenu(Player player, Currency currency) {
         FileUtils.Files file = FileUtils.Files.TOP;
 
-        int size = FileUtils.get().getInt(file, "Inventory.size");
         String title = currency.getInventoryTitles().get(file.getName().toLowerCase());
+        int size = FileUtils.get().getInt(file, "Inventory.size");
 
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        InventoryBuilder inventory = new InventoryBuilder(title, size);
 
         String[] topSlots = FileUtils.get().getString(file, "Inventory.slots").replace(" ", "").split(",");
 
@@ -386,11 +362,9 @@ public class Menus {
                     })
             }).build();
 
-            inventoryUtils.addAction(inventory, item, null, InventoryUtils.ActionType.ALL_CLICKS);
-
-            inventory.setItem(slot, item);
+            inventory.addItem(item, slot);
         }
 
-        player.openInventory(inventory);
+        inventory.open(player);
     }
 }

@@ -16,6 +16,7 @@ Settings:
   permission-message: '&cVocê não possui permissão para executar esse comando!'
 
 Messages:
+  buy-all-zero: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode comprar nenhum item!'
   never-seen: '&6&lVoltz&f&lMC &8&l➜ &cEsse jogador nunca entrou no servidor!'
   invalid-amount: '&6&lVoltz&f&lMC &8&l➜ &cValor inválido!'
   min-value: '&6&lVoltz&f&lMC &8&l➜ &cA quantia precisa ser acima de {tax}!'
@@ -43,16 +44,6 @@ Messages:
     - ' &8▶ &7ID: &f#{id}'
     - ''
 
-  confirm:
-    - ''
-    - '&6&lVoltz&f&lMC &8&l➜ &7Digite o comando novamente para confirmar a transação!'
-    - ''
-    - ' &8▶ &7Moeda: {currency_display}'
-    - ' &8▶ &7Enviando para: &f{target}'
-    - ' &8▶ &7Saldo a ser enviado: &f{amount}'
-    - ' &8▶ &7Saldo a ser recebido: &f{received} &7(&f-{tax}%&7)'
-    - ''
-
   withdraw:
     - '&6&lVoltz&f&lMC &8&l➜ &7Digite no chat quanto deseja retirar!'
     - '&6&lVoltz&f&lMC &8&l➜ &7Lembre-se que há uma taxa de &f{tax}%&7!'
@@ -60,6 +51,7 @@ Messages:
   choose-amount:
     - ''
     - '&6&lVoltz&f&lMC &8&l➜ &7Digite no chat quantos itens deseja comprar!'
+    - '&6&lVoltz&f&lMC &8&l➜ &7Para comprar o máximo possível digite ''&f*&7''!'
     - ''
     - ' &8▶ &7Comprando: &f{item}'
     - ' &8▶ &7Preço: {price}'
@@ -71,6 +63,16 @@ Messages:
     - ' &8▶ &7Item adquirido: &f{item}'
     - ' &8▶ &7Quantia: &fx{amount}'
     - ' &8▶ &7Preço: {price}'
+    - ''
+
+  confirm:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7Digite o comando novamente para confirmar a transação!'
+    - ''
+    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Enviando para: &f{target}'
+    - ' &8▶ &7Saldo a ser enviado: &f{amount_display}'
+    - ' &8▶ &7Saldo a ser recebido: &f{received_display} &7(&f-{tax}%&7)'
     - ''
 
 Logs:

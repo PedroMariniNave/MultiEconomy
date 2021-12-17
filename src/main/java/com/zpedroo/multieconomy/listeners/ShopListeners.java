@@ -18,11 +18,11 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
-import java.util.HashMap;
+import java.util.*;
 
 public class ShopListeners implements Listener {
 
-    private static HashMap<Player, PlayerChat> playerChat;
+    private static Map<Player, PlayerChat> playerChat;
 
     static {
         playerChat = new HashMap<>(32);
@@ -36,19 +36,35 @@ public class ShopListeners implements Listener {
 
         PlayerChat playerChat = getPlayerChat().remove(event.getPlayer());
         Player player = playerChat.getPlayer();
-        BigInteger amount = NumberFormatter.getInstance().filter(event.getMessage());
+        BigInteger amount = null;
+
+        CategoryItem item = playerChat.getItem();
+        Currency currency = item.getCurrency();
+
+        BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(player, currency);
+        BigInteger price = item.getPrice();
+
+        if (StringUtils.equals(event.getMessage(), "*")) {
+            amount = currencyAmount.divide(price);
+            if (amount.signum() <= 0) {
+                player.sendMessage(Messages.BUY_ALL_ZERO);
+                return;
+            }
+        } else {
+            amount = NumberFormatter.getInstance().filter(event.getMessage());
+        }
 
         if (amount.signum() <= 0) {
             player.sendMessage(Messages.INVALID_AMOUNT);
             return;
         }
 
-        CategoryItem item = playerChat.getItem();
-        Integer limit = item.getDisplay().getMaxStackSize() == 1 ? 36 : 2304;
-        if (amount.compareTo(BigInteger.valueOf(limit)) > 0) amount = BigInteger.valueOf(limit);
+        int limit = item.getDisplay().getMaxStackSize() == 1 ? 36 : 2304;
+        if (amount.compareTo(BigInteger.valueOf(limit)) > 0 && item.hasInventoryLimit()) amount = BigInteger.valueOf(limit);
 
-        Integer freeSpace = InventoryManager.getInstance().getFreeSpace(player, item.getDisplay());
-        if (freeSpace < amount.intValue()) {
+        BigInteger freeSpace = BigInteger.valueOf(InventoryManager.getInstance().getFreeSpace(player, item.getDisplay()));
+        BigInteger toCompare = item.hasInventoryLimit() ? amount : BigInteger.ONE;
+        if (freeSpace.compareTo(toCompare) < 0)  {
             player.sendMessage(StringUtils.replaceEach(Messages.NEED_SPACE, new String[]{
                     "{has}",
                     "{need}"
@@ -59,23 +75,19 @@ public class ShopListeners implements Listener {
             return;
         }
 
-        Currency currency = item.getCurrency();
-
-        BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(player, currency);
-        BigInteger price = item.getPrice().multiply(amount);
-
-        if (currencyAmount.compareTo(price) < 0) {
+        BigInteger finalPrice = price.multiply(amount);
+        if (currencyAmount.compareTo(finalPrice) < 0) {
             player.sendMessage(StringUtils.replaceEach(Messages.INSUFFICIENT_CURRENCY, new String[]{
                     "{has}",
                     "{need}"
             }, new String[]{
                     NumberFormatter.getInstance().format(currencyAmount),
-                    NumberFormatter.getInstance().format(price)
+                    NumberFormatter.getInstance().format(finalPrice)
             }));
             return;
         }
 
-        CurrencyAPI.removeCurrencyAmount(player, currency, price);
+        CurrencyAPI.removeCurrencyAmount(player, currency, finalPrice);
         if (item.getShopItem() != null) {
             ItemStack toGive = item.getShopItem().clone();
             if (toGive.getMaxStackSize() == 64) {
@@ -92,13 +104,13 @@ public class ShopListeners implements Listener {
         for (String cmd : item.getCommands()) {
             if (cmd == null) continue;
 
-            final Integer finalAmount = amount.intValue();
+            final BigInteger finalAmount = amount;
             MultiEconomy.get().getServer().getScheduler().runTaskLater(MultiEconomy.get(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(cmd, new String[]{
                     "{player}",
                     "{amount}"
             }, new String[]{
                     player.getName(),
-                    String.valueOf(finalAmount * item.getDefaultAmount())
+                    finalAmount.multiply(item.getDefaultAmount()).toString()
             })), 0L);
         }
 
@@ -115,15 +127,15 @@ public class ShopListeners implements Listener {
                     StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
                             "{amount}"
                     }, new String[]{
-                            NumberFormatter.getInstance().format(price)
+                            NumberFormatter.getInstance().format(finalPrice)
                     })
             }));
         }
 
-        player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5f, 10f);
+        player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
     }
 
-    public static HashMap<Player, PlayerChat> getPlayerChat() {
+    public static Map<Player, PlayerChat> getPlayerChat() {
         return playerChat;
     }
 

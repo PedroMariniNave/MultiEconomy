@@ -20,7 +20,8 @@ public class DBManager {
             String query = "UPDATE `" + DBConnection.TABLE + "` SET" +
                     "`uuid`='" + data.getUUID().toString() + "', " +
                     "`currencies`='" + serializeCurrencies(data.getCurrencies()) + "', " +
-                    "`transactions`='" + serializeTransactions(data.getTransactions()) + "';";
+                    "`transactions`='" + serializeTransactions(data.getTransactions()) + "' " +
+                    "WHERE `uuid`='" + data.getUUID().toString() + "';";
             executeUpdate(query);
             return;
         }

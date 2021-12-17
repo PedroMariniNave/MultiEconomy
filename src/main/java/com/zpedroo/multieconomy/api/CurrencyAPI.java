@@ -1,5 +1,6 @@
 package com.zpedroo.multieconomy.api;
 
+import com.zpedroo.multieconomy.hooks.VaultEconomy;
 import com.zpedroo.multieconomy.managers.DataManager;
 import com.zpedroo.multieconomy.objects.Currency;
 import com.zpedroo.multieconomy.objects.Transaction;
@@ -9,6 +10,10 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class CurrencyAPI {
+
+    public static Currency getVaultCurrency() {
+        return VaultEconomy.getInstance().getCurrency();
+    }
 
     public static Currency getCurrency(String currencyName) {
         return DataManager.getInstance().getCache().getCurrencies().get(currencyName);

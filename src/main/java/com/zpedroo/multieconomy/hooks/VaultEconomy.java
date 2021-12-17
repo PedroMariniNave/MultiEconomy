@@ -16,13 +16,21 @@ import java.util.List;
 
 public class VaultEconomy implements Economy {
 
+    private static VaultEconomy instance;
+    public static VaultEconomy getInstance() { return instance; }
+
     private Plugin plugin;
     private Currency currency;
 
     public VaultEconomy(Plugin plugin, String currencyName) {
+        instance = this;
         this.plugin = plugin;
         plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> this.currency = CurrencyAPI.getCurrency(currencyName), 4L);
         plugin.getServer().getServicesManager().register(Economy.class, this, plugin, ServicePriority.Lowest);
+    }
+
+    public Currency getCurrency() {
+        return currency;
     }
 
     @Override

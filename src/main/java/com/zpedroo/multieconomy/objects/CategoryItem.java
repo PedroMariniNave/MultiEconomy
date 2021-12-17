@@ -11,12 +11,13 @@ public class CategoryItem {
     private String permissionMessage;
     private Currency currency;
     private BigInteger price;
-    private Integer defaultAmount;
+    private BigInteger defaultAmount;
     private ItemStack display;
     private ItemStack shopItem;
+    private Boolean inventoryLimit;
     private List<String> commands;
 
-    public CategoryItem(String permission, String permissionMessage, Currency currency, BigInteger price, Integer defaultAmount, ItemStack display, ItemStack shopItem, List<String> commands) {
+    public CategoryItem(String permission, String permissionMessage, Currency currency, BigInteger price, BigInteger defaultAmount, ItemStack display, ItemStack shopItem, Boolean inventoryLimit, List<String> commands) {
         this.permission = permission;
         this.permissionMessage = permissionMessage;
         this.currency = currency;
@@ -24,6 +25,7 @@ public class CategoryItem {
         this.defaultAmount = defaultAmount;
         this.display = display;
         this.shopItem = shopItem;
+        this.inventoryLimit = inventoryLimit;
         this.commands = commands;
     }
 
@@ -43,7 +45,7 @@ public class CategoryItem {
         return price;
     }
 
-    public Integer getDefaultAmount() {
+    public BigInteger getDefaultAmount() {
         return defaultAmount;
     }
 
@@ -53,6 +55,10 @@ public class CategoryItem {
 
     public ItemStack getShopItem() {
         return shopItem;
+    }
+
+    public Boolean hasInventoryLimit() {
+        return inventoryLimit;
     }
 
     public List<String> getCommands() {

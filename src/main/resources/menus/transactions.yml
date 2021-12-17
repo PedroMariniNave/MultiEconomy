@@ -5,7 +5,7 @@ Inventory:
   previous-page-slot: 18 # só vai aparecer se tiver página anterior
   items:
     add:
-      type: PLAYER_HEAD
+      type: SKULL_ITEM
       owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTllNGJkY2YxNzJkNWRjNzdjMmJkNGUzN2FkOTg1Mzk5YTlmMmNkZWJmNzI0NjM5MjllYTRiNjY2ZWY2ZjgwIn19fQ==
       name: "&aTransação"
       lore:
@@ -17,7 +17,7 @@ Inventory:
         - ' &8▶ &7Saldo recebido: &a+{amount}'
         - ' &8▶ &7ID: &f#{id}'
     remove:
-      type: PLAYER_HEAD
+      type: SKULL_ITEM
       owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZkZTNiZmNlMmQ4Y2I3MjRkZTg1NTZlNWVjMjFiN2YxNWY1ODQ2ODRhYjc4NTIxNGFkZDE2NGJlNzYyNGIifX19
       name: "&cTransação"
       lore:
@@ -29,7 +29,7 @@ Inventory:
         - ' &8▶ &7Saldo enviado: &c-{amount}'
         - ' &8▶ &7ID: &f#{id}'
     withdraw:
-      type: PLAYER_HEAD
+      type: SKULL_ITEM
       owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZkZTNiZmNlMmQ4Y2I3MjRkZTg1NTZlNWVjMjFiN2YxNWY1ODQ2ODRhYjc4NTIxNGFkZDE2NGJlNzYyNGIifX19
       name: "&cCheque"
       lore:
@@ -40,7 +40,7 @@ Inventory:
         - ' &8▶ &7Saldo retirado: &c-{amount}'
         - ' &8▶ &7ID: &f#{id}'
     deposit:
-      type: PLAYER_HEAD
+      type: SKULL_ITEM
       owner: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTllNGJkY2YxNzJkNWRjNzdjMmJkNGUzN2FkOTg1Mzk5YTlmMmNkZWJmNzI0NjM5MjllYTRiNjY2ZWY2ZjgwIn19fQ==
       name: "&aCheque"
       lore:

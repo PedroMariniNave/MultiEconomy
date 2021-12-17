@@ -34,8 +34,8 @@ public class DataManager {
         this.dataCache = new DataCache();
         plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::loadShops, 0L);
         plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::loadCurrencies, 0L);
-        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::loadCategories, 2L);
-        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::loadDataFromDB, 10L);
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::loadCategories, 10L);
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::loadDataFromDB, 20L);
     }
 
     public PlayerData load(UUID uuid) {
@@ -180,7 +180,7 @@ public class DataManager {
                 if (currency == null) continue;
 
                 BigInteger price = NumberFormatter.getInstance().filter(file.getString("Inventory.items." + str + ".price", "0"));
-                Integer defaultAmount = file.getInt("Inventory.items." + str + ".default-amount", 1);
+                BigInteger defaultAmount = NumberFormatter.getInstance().filter(file.getString("Inventory.items." + str + ".default-amount", "1"));
                 ItemStack display = ItemBuilder.build(file, "Inventory.items." + str + ".display", new String[]{
                         "{price}"
                 }, new String[]{
@@ -192,9 +192,10 @@ public class DataManager {
                 }).build();
                 ItemStack shopItem = file.contains("Inventory.items." + str + ".shop-item") ?
                         ItemBuilder.build(file, "Inventory.items." + str + ".shop-item").build() : null;
+                Boolean inventoryLimit = file.getBoolean("Inventory.items." + str + ".inventory-limit", true);
                 List<String> commands = file.getStringList("Inventory.items." + str + ".commands");
 
-                categoryItems.add(new CategoryItem(permission, permissionMessage, currency, price, defaultAmount, display, shopItem, commands));
+                categoryItems.add(new CategoryItem(permission, permissionMessage, currency, price, defaultAmount, display, shopItem, inventoryLimit, commands));
             }
 
             Category category = new Category(file, openPermission, openPermissionMessage, categoryItems);

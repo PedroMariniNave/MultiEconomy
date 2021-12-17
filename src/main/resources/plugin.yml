@@ -1,7 +1,7 @@
 name: ${project.artifactId}
 description: ${project.description}
 version: ${project.version}
-api-version: 1.16
+api-version: 1.8
 author: zPedroo_
 main: com.zpedroo.multieconomy.MultiEconomy
 softdepend: [Vault, PlaceholderAPI]
