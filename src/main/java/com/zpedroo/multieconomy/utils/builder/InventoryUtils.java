@@ -16,11 +16,11 @@ public class InventoryUtils {
     private static InventoryUtils instance;
     public static InventoryUtils get() { return instance; }
 
-    private Map<Player, InventoryBuilder> viewers;
+    private final Map<Player, InventoryBuilder> viewers;
 
     public InventoryUtils() {
         instance = this;
-        this.viewers = new HashMap<>(128);
+        this.viewers = new HashMap<>(16);
         MultiEconomy.get().getServer().getPluginManager().registerEvents(new ActionListeners(), MultiEconomy.get());
     }
 
@@ -71,8 +71,8 @@ public class InventoryUtils {
 
     public static class Action {
 
-        private Runnable action;
-        private ActionType actionType;
+        private final Runnable action;
+        private final ActionType actionType;
 
         public Action(Runnable action, ActionType actionType) {
             this.action = action;

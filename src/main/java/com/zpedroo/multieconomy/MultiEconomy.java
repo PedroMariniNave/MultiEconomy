@@ -7,9 +7,9 @@ import com.zpedroo.multieconomy.listeners.ShopListeners;
 import com.zpedroo.multieconomy.listeners.WithdrawListeners;
 import com.zpedroo.multieconomy.managers.DataManager;
 import com.zpedroo.multieconomy.managers.InventoryManager;
-import com.zpedroo.multieconomy.managers.LogManager;
 import com.zpedroo.multieconomy.managers.TransactionManager;
 import com.zpedroo.multieconomy.mysql.DBConnection;
+import com.zpedroo.multieconomy.scheduler.SchedulerLoader;
 import com.zpedroo.multieconomy.tasks.SaveTask;
 import com.zpedroo.multieconomy.utils.FileUtils;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
@@ -21,6 +21,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.quartz.SchedulerException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -46,12 +47,12 @@ public class MultiEconomy extends JavaPlugin {
 
         new DBConnection(getConfig());
         new NumberFormatter(getConfig());
-        new DataManager(this);
-        new LogManager();
+        new DataManager();
         new TransactionManager();
         new InventoryManager();
         new Menus();
         new SaveTask(this);
+        new SchedulerLoader();
 
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             new VaultEconomy(this, VAULT_CURRENCY);
@@ -62,6 +63,7 @@ public class MultiEconomy extends JavaPlugin {
         }
 
         registerListeners();
+        startSchedulers();
     }
 
     public void onDisable() {
@@ -70,6 +72,7 @@ public class MultiEconomy extends JavaPlugin {
         try {
             DataManager.getInstance().saveAll();
             DBConnection.getInstance().closeConnection();
+            SchedulerLoader.getInstance().stopAllSchedulers();
         } catch (Exception ex) {
             getLogger().log(Level.SEVERE, "An error occurred while trying to save data!");
             ex.printStackTrace();
@@ -102,7 +105,15 @@ public class MultiEconomy extends JavaPlugin {
         }
     }
 
-    private Boolean isMySQLEnabled(FileConfiguration file) {
+    private void startSchedulers() {
+        try {
+            SchedulerLoader.getInstance().startAllCategoriesScheduler();
+        } catch (SchedulerException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private boolean isMySQLEnabled(FileConfiguration file) {
         if (!file.contains("MySQL.enabled")) return false;
 
         return file.getBoolean("MySQL.enabled");

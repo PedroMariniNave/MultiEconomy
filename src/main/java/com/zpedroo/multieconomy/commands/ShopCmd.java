@@ -1,6 +1,6 @@
 package com.zpedroo.multieconomy.commands;
 
-import com.zpedroo.multieconomy.objects.Shop;
+import com.zpedroo.multieconomy.objects.general.Shop;
 import com.zpedroo.multieconomy.utils.menu.Menus;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class ShopCmd implements CommandExecutor {
 
-    private Shop shop;
+    private final Shop shop;
 
     public ShopCmd(Shop shop) {
         this.shop = shop;

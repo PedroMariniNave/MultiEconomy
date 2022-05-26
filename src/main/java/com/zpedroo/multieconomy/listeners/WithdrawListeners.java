@@ -3,8 +3,8 @@ package com.zpedroo.multieconomy.listeners;
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.enums.TransactionType;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.Transaction;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.Transaction;
 import com.zpedroo.multieconomy.utils.FileUtils;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
@@ -22,11 +22,7 @@ import java.util.Map;
 
 public class WithdrawListeners implements Listener {
 
-    private static Map<Player, Currency> withdrawing;
-
-    static {
-        withdrawing = new HashMap<>(8);
-    }
+    private static final Map<Player, Currency> withdrawing = new HashMap<>(4);
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
@@ -43,13 +39,13 @@ public class WithdrawListeners implements Listener {
             return;
         }
 
-        Integer taxPerTransaction = currency.getTaxPerTransaction();
+        int taxPerTransaction = currency.getTaxPerTransaction();
 
         if (amount.compareTo(BigInteger.valueOf(taxPerTransaction)) < 0) {
             player.sendMessage(StringUtils.replaceEach(Messages.MIN_VALUE, new String[]{
                     "{tax}"
             }, new String[]{
-                    taxPerTransaction.toString()
+                    String.valueOf(taxPerTransaction)
             }));
             return;
         }
@@ -71,9 +67,10 @@ public class WithdrawListeners implements Listener {
         player.getInventory().addItem(item);
         CurrencyAPI.removeCurrencyAmount(player, currency, amount);
 
-        Integer id = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
+        int id = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
 
-        Transaction transaction = new Transaction(player, null, amount, TransactionType.WITHDRAW, System.currentTimeMillis(), id);
+        Transaction transaction = Transaction.builder().actor(player).target(null).amount(amount).type(TransactionType.WITHDRAW)
+                .creationDateInMillis(System.currentTimeMillis()).id(id).build();
         DataManager.getInstance().load(player.getUniqueId()).addTransaction(currency, transaction);
     }
 

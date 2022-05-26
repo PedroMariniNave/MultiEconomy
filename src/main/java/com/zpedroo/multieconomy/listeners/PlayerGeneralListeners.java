@@ -2,9 +2,9 @@ package com.zpedroo.multieconomy.listeners;
 
 import com.zpedroo.multieconomy.enums.TransactionType;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.PlayerData;
-import com.zpedroo.multieconomy.objects.Transaction;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
+import com.zpedroo.multieconomy.objects.player.Transaction;
 import com.zpedroo.multieconomy.utils.FileUtils;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import de.tr7zw.nbtapi.NBTItem;
@@ -51,14 +51,15 @@ public class PlayerGeneralListeners implements Listener {
         data.addCurrencyAmount(currency, amount);
 
         String[] titles = currency.getTitles().get("item-activated");
-        String title = StringUtils.replaceEach(titles[0], new String[] { "{amount}" }, new String[] { NumberFormatter.getInstance().format(amount) });
-        String subtitle = StringUtils.replaceEach(titles[1], new String[] { "{amount}" }, new String[] { NumberFormatter.getInstance().format(amount) });
+        String title = StringUtils.replace(titles[0], "{amount}", NumberFormatter.getInstance().format(amount));
+        String subtitle = StringUtils.replace(titles[1], "{amount}", NumberFormatter.getInstance().format(amount));
 
         player.sendTitle(title, subtitle);
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
 
-        Integer id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getFileName()) + 1;
-        data.addTransaction(currency, new Transaction(player, null, amount, TransactionType.DEPOSIT, System.currentTimeMillis(), id));
+        int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getFileName()) + 1;
+        data.addTransaction(currency, Transaction.builder().actor(player).target(null).amount(amount).type(TransactionType.DEPOSIT)
+                .creationDateInMillis(System.currentTimeMillis()).id(id).build());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

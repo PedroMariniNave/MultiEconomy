@@ -3,19 +3,16 @@ package com.zpedroo.multieconomy.commands;
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.enums.TransactionType;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.managers.LogManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.PlayerData;
-import com.zpedroo.multieconomy.objects.Transaction;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
+import com.zpedroo.multieconomy.objects.player.Transaction;
 import com.zpedroo.multieconomy.utils.FileUtils;
-import com.zpedroo.multieconomy.utils.config.Logs;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.config.Settings;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import com.zpedroo.multieconomy.utils.menu.Menus;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,26 +21,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CurrencyCmd implements CommandExecutor {
 
-    private Currency currency;
-    private Map<Player, TransactionConfirm> confirm;
+    private final Currency currency;
+    private final Map<Player, TransactionConfirm> confirm = new HashMap<>(8);
 
     public CurrencyCmd(Currency currency) {
         this.currency = currency;
-        this.confirm = new HashMap<>(16);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player = sender instanceof Player ? (Player) sender : null;
 
-        OfflinePlayer target = null;
-
+        Player target = null;
         PlayerData targetData = null;
         BigInteger amount = null;
 
@@ -56,10 +50,9 @@ public class CurrencyCmd implements CommandExecutor {
                     return true;
             }
 
-            target = Bukkit.getOfflinePlayer(args[0]);
-
-            if (!DataManager.getInstance().hasAccount(target.getUniqueId())) {
-                player.sendMessage(Messages.NEVER_SEEN);
+            target = Bukkit.getPlayer(args[0]);
+            if (target == null) {
+                player.sendMessage(Messages.OFFLINE_PLAYER);
                 return true;
             }
 
@@ -68,8 +61,6 @@ public class CurrencyCmd implements CommandExecutor {
         }
 
         if (args.length == 3) {
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
             switch (args[0].toUpperCase()) {
                 case "ITEM":
                     if (!sender.hasPermission(Settings.ADMIN_PERMISSION)) {
@@ -77,7 +68,7 @@ public class CurrencyCmd implements CommandExecutor {
                         return true;
                     }
 
-                    target = Bukkit.getOfflinePlayer(args[1]);
+                    target = Bukkit.getPlayer(args[1]);
                     if (target.getPlayer() == null) return true;
 
                     amount = NumberFormatter.getInstance().filter(args[2]);
@@ -88,46 +79,25 @@ public class CurrencyCmd implements CommandExecutor {
 
                     ItemStack item = currency.getItem(amount);
                     target.getPlayer().getInventory().addItem(item);
-
-                    if (player == null) return true;
-
-                    LogManager.getInstance().addLog(StringUtils.replaceEach(Logs.ITEM, new String[]{
-                            "{date}",
-                            "{currency_name}",
-                            "{actor}",
-                            "{actor_ip}",
-                            "{target}",
-                            "{target_ip}",
-                            "{amount}"
-                    }, new String[]{
-                            formatter.format(System.currentTimeMillis()),
-                            currency.getName(),
-                            player.getName(),
-                            player.getAddress().getAddress().getHostAddress(),
-                            target.getName(),
-                            target.getPlayer() == null ? "???" : target.getPlayer().getAddress().getAddress().getHostAddress(),
-                            NumberFormatter.getInstance().format(amount)
-                    }));
                     return true;
                 case "SEND":
                 case "PAY":
                 case "ENVIAR":
                     if (player == null) return true;
 
-                    target = Bukkit.getOfflinePlayer(args[1]);
+                    target = Bukkit.getPlayer(args[1]);
+                    if (target == null) {
+                        player.sendMessage(Messages.OFFLINE_PLAYER);
+                        return true;
+                    }
                     if (StringUtils.equals(player.getName(), target.getName())) {
                         player.sendMessage(StringUtils.replaceEach(Messages.TARGET_IS_SENDER, new String[]{
                                 "{currency}",
                                 "{currency_name}"
                         }, new String[]{
                                 currency.getFileName(),
-                                currency.getName()
+                                currency.getCurrencyName()
                         }));
-                        return true;
-                    }
-
-                    if (!DataManager.getInstance().hasAccount(target.getUniqueId())) {
-                        player.sendMessage(Messages.NEVER_SEEN);
                         return true;
                     }
 
@@ -137,12 +107,12 @@ public class CurrencyCmd implements CommandExecutor {
                         return true;
                     }
 
-                    Integer taxPerTransaction = currency.getTaxPerTransaction();
+                    int taxPerTransaction = currency.getTaxPerTransaction();
                     if (amount.compareTo(BigInteger.valueOf(taxPerTransaction)) < 0) {
                         player.sendMessage(StringUtils.replaceEach(Messages.MIN_VALUE, new String[]{
                                 "{tax}"
                         }, new String[]{
-                                taxPerTransaction.toString()
+                                String.valueOf(taxPerTransaction)
                         }));
                         return true;
                     }
@@ -173,21 +143,13 @@ public class CurrencyCmd implements CommandExecutor {
                                 "{tax}"
                         }, new String[]{
                                 target.getName(),
-                                currency.getName(),
-                                currency.getDisplay(),
+                                currency.getCurrencyName(),
+                                currency.getCurrencyDisplay(),
                                 NumberFormatter.getInstance().format(amount),
-                                StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                        "{amount}"
-                                }, new String[]{
-                                        NumberFormatter.getInstance().format(amount)
-                                }),
+                                currency.getAmountDisplay(amount),
                                 NumberFormatter.getInstance().format(toGive),
-                                StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                        "{amount}"
-                                }, new String[]{
-                                        NumberFormatter.getInstance().format(toGive)
-                                }),
-                                currency.getTaxPerTransaction().toString()
+                                currency.getAmountDisplay(toGive),
+                                String.valueOf(currency.getTaxPerTransaction())
                         }));
                     }
                     return true;
@@ -200,9 +162,9 @@ public class CurrencyCmd implements CommandExecutor {
                         return true;
                     }
 
-                    target = Bukkit.getOfflinePlayer(args[1]);
-                    if (!DataManager.getInstance().hasAccount(target.getUniqueId())) {
-                        sender.sendMessage(Messages.NEVER_SEEN);
+                    target = Bukkit.getPlayer(args[1]);
+                    if (target == null) {
+                        sender.sendMessage(Messages.OFFLINE_PLAYER);
                         return true;
                     }
 
@@ -213,36 +175,11 @@ public class CurrencyCmd implements CommandExecutor {
                     }
 
                     targetData = DataManager.getInstance().load(target.getUniqueId());
-                    String action = null;
                     if (StringUtils.equals(args[0].toUpperCase(), "GIVE")) {
                         targetData.addCurrencyAmount(currency, amount);
-                        action = "GIVE";
                     } else {
                         targetData.setCurrencyAmount(currency, amount);
-                        action = "SET";
                     }
-
-                    if (player == null) break;
-
-                    LogManager.getInstance().addLog(StringUtils.replaceEach(Logs.EDIT, new String[]{
-                            "{date}",
-                            "{currency_name}",
-                            "{action}",
-                            "{actor}",
-                            "{actor_ip}",
-                            "{target}",
-                            "{target_ip}",
-                            "{amount}"
-                    }, new String[]{
-                            formatter.format(System.currentTimeMillis()),
-                            currency.getName(),
-                            action,
-                            player.getName(),
-                            player.getAddress().getAddress().getHostAddress(),
-                            target.getName(),
-                            target.getPlayer() == null ? "???" : target.getPlayer().getAddress().getAddress().getHostAddress(),
-                            NumberFormatter.getInstance().format(amount)
-                    }));
                     return true;
             }
         }
@@ -255,12 +192,12 @@ public class CurrencyCmd implements CommandExecutor {
 
     private class TransactionConfirm {
 
-        private Player player;
-        private OfflinePlayer target;
-        private BigInteger amount;
-        private BigInteger toGive;
+        private final Player player;
+        private final Player target;
+        private final BigInteger amount;
+        private final BigInteger toGive;
 
-        public TransactionConfirm(Player player, OfflinePlayer target, BigInteger amount, BigInteger toGive) {
+        public TransactionConfirm(Player player, Player target, BigInteger amount, BigInteger toGive) {
             this.player = player;
             this.target = target;
             this.amount = amount;
@@ -271,7 +208,7 @@ public class CurrencyCmd implements CommandExecutor {
             return player;
         }
 
-        public OfflinePlayer getTarget() {
+        public Player getTarget() {
             return target;
         }
 
@@ -290,7 +227,7 @@ public class CurrencyCmd implements CommandExecutor {
                 return;
             }
 
-            int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getName()) + 1;
+            int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getCurrencyName()) + 1;
 
             CurrencyAPI.removeCurrencyAmount(player, currency, amount);
             CurrencyAPI.addCurrencyAmount(target, currency, toGive);
@@ -309,22 +246,14 @@ public class CurrencyCmd implements CommandExecutor {
                         "{tax}"
                 }, new String[]{
                         currency.getFileName(),
-                        currency.getDisplay(),
+                        currency.getCurrencyDisplay(),
                         target.getName(),
                         NumberFormatter.getInstance().format(amount),
-                        StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                "{amount}"
-                        }, new String[]{
-                                NumberFormatter.getInstance().format(amount)
-                        }),
+                        currency.getAmountDisplay(amount),
                         NumberFormatter.getInstance().format(toGive),
-                        StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                "{amount}"
-                        }, new String[]{
-                                NumberFormatter.getInstance().format(toGive)
-                        }),
+                        currency.getAmountDisplay(toGive),
                         String.valueOf(id),
-                        currency.getTaxPerTransaction().toString()
+                        String.valueOf(currency.getTaxPerTransaction())
                 }));
             }
 
@@ -344,28 +273,22 @@ public class CurrencyCmd implements CommandExecutor {
                             "{tax}"
                     }, new String[]{
                             currency.getFileName(),
-                            currency.getDisplay(),
+                            currency.getCurrencyDisplay(),
                             player.getName(),
                             NumberFormatter.getInstance().format(amount),
-                            StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                    "{amount}"
-                            }, new String[]{
-                                    NumberFormatter.getInstance().format(amount)
-                            }),
+                            currency.getAmountDisplay(amount),
                             NumberFormatter.getInstance().format(toGive),
-                            StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                    "{amount}"
-                            }, new String[]{
-                                    NumberFormatter.getInstance().format(toGive)
-                            }),
+                            currency.getAmountDisplay(toGive),
                             String.valueOf(id),
-                            currency.getTaxPerTransaction().toString()
+                            String.valueOf(currency.getTaxPerTransaction())
                     }));
                 }
             }
 
-            DataManager.getInstance().load(player.getUniqueId()).addTransaction(currency, new Transaction(player, target, amount, TransactionType.REMOVE, System.currentTimeMillis(), id));
-            DataManager.getInstance().load(target.getUniqueId()).addTransaction(currency, new Transaction(player, target, toGive, TransactionType.ADD, System.currentTimeMillis(), id));
+            DataManager.getInstance().load(player.getUniqueId()).addTransaction(currency,Transaction.builder().actor(player)
+                    .target(target).amount(amount).type(TransactionType.REMOVE).creationDateInMillis(System.currentTimeMillis()).id(id).build());
+            DataManager.getInstance().load(target.getUniqueId()).addTransaction(currency, Transaction.builder().actor(player)
+                    .target(target).amount(amount).type(TransactionType.ADD).creationDateInMillis(System.currentTimeMillis()).id(id).build());
         }
     }
 }

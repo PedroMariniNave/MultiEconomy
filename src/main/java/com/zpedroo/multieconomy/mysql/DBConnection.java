@@ -13,8 +13,8 @@ public class DBConnection {
 
     protected static final String TABLE = "multi_economy";
 
-    private HikariDataSource hikari;
-    private DBManager dbManager;
+    private final HikariDataSource hikari;
+    private final DBManager dbManager;
 
     public DBConnection(FileConfiguration file) {
         instance = this;

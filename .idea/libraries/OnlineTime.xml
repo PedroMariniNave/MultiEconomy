@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="OnlineTime">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/main/resources/libraries/OnlineTime.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

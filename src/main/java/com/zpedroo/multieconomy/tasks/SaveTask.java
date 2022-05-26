@@ -15,6 +15,6 @@ public class SaveTask extends BukkitRunnable {
     @Override
     public void run() {
         DataManager.getInstance().saveAll();
-        DataManager.getInstance().loadDataFromDB();
+        DataManager.getInstance().updateTopCurrencies();
     }
 }

@@ -14,9 +14,9 @@ public class NumberFormatter {
     private static NumberFormatter instance;
     public static NumberFormatter getInstance() { return instance; }
 
-    private BigInteger THOUSAND = BigInteger.valueOf(1000);
-    private NavigableMap<BigInteger, String> FORMATS = new TreeMap<>();
-    private List<String> NAMES = new LinkedList<>();
+    private final BigInteger THOUSAND = BigInteger.valueOf(1000);
+    private final NavigableMap<BigInteger, String> FORMATS = new TreeMap<>();
+    private final List<String> NAMES = new LinkedList<>();
 
     public NumberFormatter(FileConfiguration file) {
         instance = this;
@@ -64,7 +64,7 @@ public class NumberFormatter {
         return rounded + "" + entry.getValue();
     }
 
-    public String formatDecimal(Double number) {
+    public String formatDecimal(double number) {
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
         symbols.setGroupingSeparator('.');

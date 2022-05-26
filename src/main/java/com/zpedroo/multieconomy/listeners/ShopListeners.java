@@ -3,10 +3,11 @@ package com.zpedroo.multieconomy.listeners;
 import com.zpedroo.multieconomy.MultiEconomy;
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.managers.InventoryManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.CategoryItem;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.category.CategoryItem;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
+import com.zpedroo.onlinetime.api.OnlineTimeAPI;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -22,11 +23,7 @@ import java.util.*;
 
 public class ShopListeners implements Listener {
 
-    private static Map<Player, PlayerChat> playerChat;
-
-    static {
-        playerChat = new HashMap<>(32);
-    }
+    private static final Map<Player, PlayerChat> playerChat = new HashMap<>(8);
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
@@ -60,10 +57,10 @@ public class ShopListeners implements Listener {
         }
 
         int limit = item.getDisplay().getMaxStackSize() == 1 ? 36 : 2304;
-        if (amount.compareTo(BigInteger.valueOf(limit)) > 0 && item.hasInventoryLimit()) amount = BigInteger.valueOf(limit);
+        if (amount.compareTo(BigInteger.valueOf(limit)) > 0 && item.isInventoryLimit()) amount = BigInteger.valueOf(limit);
 
         BigInteger freeSpace = BigInteger.valueOf(InventoryManager.getInstance().getFreeSpace(player, item.getDisplay()));
-        BigInteger toCompare = item.hasInventoryLimit() ? amount : BigInteger.ONE;
+        BigInteger toCompare = item.isInventoryLimit() ? amount : BigInteger.ONE;
         if (freeSpace.compareTo(toCompare) < 0)  {
             player.sendMessage(StringUtils.replaceEach(Messages.NEED_SPACE, new String[]{
                     "{has}",
@@ -75,6 +72,13 @@ public class ShopListeners implements Listener {
             return;
         }
 
+        if (item.getMaxStock().signum() > 0) {
+            if (amount.compareTo(item.getStockAmount()) > 0) amount = item.getStockAmount();
+            if (amount.signum() <= 0) {
+                player.sendMessage(Messages.INSUFFICIENT_STOCK);
+                return;
+            }
+        }
         BigInteger finalPrice = price.multiply(amount);
         if (currencyAmount.compareTo(finalPrice) < 0) {
             player.sendMessage(StringUtils.replaceEach(Messages.INSUFFICIENT_CURRENCY, new String[]{
@@ -87,9 +91,22 @@ public class ShopListeners implements Listener {
             return;
         }
 
+        long playerLevel = OnlineTimeAPI.getLevel(player);
+        int requiredLevel = item.getRequiredLevel();
+        if (playerLevel < requiredLevel) {
+            player.sendMessage(StringUtils.replaceEach(Messages.INSUFFICIENT_LEVEL, new String[]{
+                    "{has}",
+                    "{need}"
+            }, new String[]{
+                    NumberFormatter.getInstance().formatDecimal(playerLevel),
+                    NumberFormatter.getInstance().formatDecimal(requiredLevel)
+            }));
+            return;
+        }
+
         CurrencyAPI.removeCurrencyAmount(player, currency, finalPrice);
-        if (item.getShopItem() != null) {
-            ItemStack toGive = item.getShopItem().clone();
+        if (item.getItemToGive() != null) {
+            ItemStack toGive = item.getItemToGive().clone();
             if (toGive.getMaxStackSize() == 64) {
                 toGive.setAmount(amount.intValue());
                 player.getInventory().addItem(toGive);
@@ -102,8 +119,6 @@ public class ShopListeners implements Listener {
         }
 
         for (String cmd : item.getCommands()) {
-            if (cmd == null) continue;
-
             final BigInteger finalAmount = amount;
             MultiEconomy.get().getServer().getScheduler().runTaskLater(MultiEconomy.get(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(cmd, new String[]{
                     "{player}",
@@ -115,8 +130,6 @@ public class ShopListeners implements Listener {
         }
 
         for (String msg : Messages.SUCCESSFUL_PURCHASED) {
-            if (msg == null) continue;
-
             player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                     "{item}",
                     "{amount}",
@@ -132,6 +145,10 @@ public class ShopListeners implements Listener {
             }));
         }
 
+        if (item.getMaxStock().signum() > 0) {
+            item.setStockAmount(item.getStockAmount().subtract(amount));
+        }
+
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
     }
 
@@ -141,8 +158,8 @@ public class ShopListeners implements Listener {
 
     public static class PlayerChat {
 
-        private Player player;
-        private CategoryItem item;
+        private final Player player;
+        private final CategoryItem item;
 
         public PlayerChat(Player player, CategoryItem item) {
             this.player = player;

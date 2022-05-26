@@ -4,38 +4,43 @@ import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.listeners.ShopListeners;
 import com.zpedroo.multieconomy.listeners.WithdrawListeners;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.*;
+import com.zpedroo.multieconomy.objects.category.Category;
+import com.zpedroo.multieconomy.objects.category.CategoryItem;
+import com.zpedroo.multieconomy.objects.category.Task;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.general.Shop;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
+import com.zpedroo.multieconomy.objects.player.Transaction;
 import com.zpedroo.multieconomy.utils.FileUtils;
 import com.zpedroo.multieconomy.utils.builder.InventoryBuilder;
 import com.zpedroo.multieconomy.utils.builder.InventoryUtils;
 import com.zpedroo.multieconomy.utils.builder.ItemBuilder;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
+import com.zpedroo.multieconomy.utils.formatter.TimeFormatter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Menus extends InventoryUtils {
 
     private static Menus instance;
     public static Menus getInstance() { return instance; }
 
-    private ItemStack nextPageItem;
-    private ItemStack previousPageItem;
+    private final ItemStack nextPageItem = ItemBuilder.build(FileUtils.get().getFile(FileUtils.Files.CONFIG).get(), "Next-Page").build();
+    private final ItemStack previousPageItem = ItemBuilder.build(FileUtils.get().getFile(FileUtils.Files.CONFIG).get(), "Previous-Page").build();
 
     public Menus() {
         instance = this;
-        this.nextPageItem = ItemBuilder.build(FileUtils.get().getFile(FileUtils.Files.CONFIG).get(), "Next-Page").build();
-        this.previousPageItem = ItemBuilder.build(FileUtils.get().getFile(FileUtils.Files.CONFIG).get(), "Previous-Page").build();
     }
 
     public void openMainMenu(Player player, Currency currency) {
@@ -53,14 +58,10 @@ public class Menus extends InventoryUtils {
                     "{amount}",
                     "{amount_display}",
             }, new String[]{
-                    currency.getColor(),
+                    currency.getCurrencyColor(),
                     player.getName(),
                     NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(player, currency)),
-                    StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                            "{amount}"
-                    }, new String[]{
-                            NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(player, currency))
-                    })
+                    currency.getAmountDisplay(CurrencyAPI.getCurrencyAmount(player, currency))
             }).build();
             int slot = FileUtils.get().getInt(file, "Inventory.items." + str + ".slot");
             String action = FileUtils.get().getString(file, "Inventory.items." + str + ".action");
@@ -80,7 +81,7 @@ public class Menus extends InventoryUtils {
                             player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                                     "{tax}"
                             }, new String[]{
-                                    currency.getTaxPerTransaction().toString()
+                                    String.valueOf(currency.getTaxPerTransaction())
                             }));
                         }
                         break;
@@ -112,14 +113,10 @@ public class Menus extends InventoryUtils {
                     "{amount}",
                     "{amount_display}"
             }, new String[]{
-                    currency.getColor(),
+                    currency.getCurrencyColor(),
                     target.getName(),
                     NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(target, currency)),
-                    StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                            "{amount}"
-                    }, new String[]{
-                            NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(target, currency))
-                    })
+                    currency.getAmountDisplay(CurrencyAPI.getCurrencyAmount(target, currency))
             }).build();
             int slot = FileUtils.get().getInt(file, "Inventory.items." + str + ".slot");
 
@@ -164,17 +161,13 @@ public class Menus extends InventoryUtils {
                         "{date}",
                         "{id}"
                 }, new String[]{
-                        currency.getColor(),
+                        currency.getCurrencyColor(),
                         transaction.getActor().getName(),
-                        transaction.getTarget().getName(),
+                        transaction.getTarget() == null ? "Ninguém" : transaction.getTarget().getName(),
                         NumberFormatter.getInstance().format(transaction.getAmount()),
-                        StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                                "{amount}"
-                        }, new String[]{
-                                NumberFormatter.getInstance().format(transaction.getAmount())
-                        }),
+                        currency.getAmountDisplay(transaction.getAmount()),
                         dateFormat.format(transaction.getCreationDateInMillis()),
-                        transaction.getID().toString()
+                        String.valueOf(transaction.getId())
                 }).build();
                 int slot = Integer.parseInt(slots[i]);
 
@@ -196,19 +189,17 @@ public class Menus extends InventoryUtils {
         Collection<Currency> currencies = DataManager.getInstance().getCache().getCurrencies().values();
 
         List<String> placeholders = new LinkedList<>();
-        List<String> replaces = new LinkedList<>();
+        List<String> replacers = new LinkedList<>();
 
         for (Currency currency : currencies) {
             placeholders.add("{currency:" + currency.getFileName() + "}");
-            replaces.add(StringUtils.replaceEach(currency.getAmountDisplay(),
-                    new String[] { "{amount}" },
-                    new String[]{ NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(player, currency)) }));
+            replacers.add(currency.getAmountDisplay(CurrencyAPI.getCurrencyAmount(player, currency)));
         }
 
         for (String str : file.getConfigurationSection("Inventory.items").getKeys(false)) {
             ItemStack item = ItemBuilder.build(file, "Inventory.items." + str,
-                    placeholders.toArray(new String[placeholders.size()]),
-                    replaces.toArray(new String[replaces.size()])).build();
+                    placeholders.toArray(new String[0]),
+                    replacers.toArray(new String[0])).build();
             int slot = file.getInt("Inventory.items." + str + ".slot");
             String action = file.getString("Inventory.items." + str + ".action", "NULL");
 
@@ -246,7 +237,7 @@ public class Menus extends InventoryUtils {
     }
 
     public void openCategoryMenu(Player player, Category category) {
-        FileConfiguration file = category.getFile();
+        FileConfiguration file = category.getFileConfiguration();
 
         String title = ChatColor.translateAlternateColorCodes('&', file.getString("Inventory.title"));
         int size = file.getInt("Inventory.size");
@@ -262,10 +253,54 @@ public class Menus extends InventoryUtils {
             if (item == null) continue;
             if (++i >= slots.length) i = 0;
 
-            ItemStack display = item.getDisplay().clone();
+            ItemStack displayItem = item.getDisplay().clone();
             int slot = Integer.parseInt(slots[i]);
 
-            inventory.addItem(display, slot, () -> {
+            ItemMeta meta = displayItem.getItemMeta();
+            Task task = category.getTask();
+
+            if (meta.getDisplayName() != null) {
+                String displayName = meta.getDisplayName();
+                meta.setDisplayName(StringUtils.replaceEach(displayName, new String[]{
+                        "{stock_amount}",
+                        "{max_stock}",
+                        "{next_restock}"
+                }, new String[]{
+                        String.valueOf(item.getStockAmount()),
+                        String.valueOf(item.getMaxStock()),
+                        task == null ? "-/-" :
+                                TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
+                }));
+            }
+
+            if (meta.getLore() != null) {
+                List<String> lore = meta.getLore();
+                List<String> newLore = new ArrayList<>(lore.size());
+
+                for (String lines : lore) {
+                    newLore.add(StringUtils.replaceEach(lines, new String[]{
+                            "{stock_amount}",
+                            "{max_stock}",
+                            "{next_restock}"
+                    }, new String[]{
+                            String.valueOf(item.getStockAmount()),
+                            String.valueOf(item.getMaxStock()),
+                            task == null ? "-/-" :
+                                    TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
+                    }));
+                }
+
+                meta.setLore(newLore);
+            }
+
+            displayItem.setItemMeta(meta);
+
+            Runnable action = () -> {
+                if (item.getMaxStock().signum() > 0 && item.getStockAmount().signum() <= 0) {
+                    player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
+                    return;
+                }
+
                 player.closeInventory();
                 ShopListeners.getPlayerChat().put(player, new ShopListeners.PlayerChat(player, item));
                 for (String msg : Messages.CHOOSE_AMOUNT) {
@@ -274,14 +309,16 @@ public class Menus extends InventoryUtils {
                             "{price}"
                     }, new String[]{
                             item.getDisplay().hasItemMeta() ? item.getDisplay().getItemMeta().hasDisplayName() ? item.getDisplay().getItemMeta().getDisplayName() : item.getDisplay().getType().toString() : item.getDisplay().getType().toString(),
-                            StringUtils.replaceEach(item.getCurrency().getAmountDisplay(), new String[]{
-                                    "{amount}"
-                            }, new String[]{
-                                    NumberFormatter.getInstance().format(item.getPrice())
-                            })
+                            item.getCurrency().getAmountDisplay(item.getPrice())
                     }));
                 }
-            }, ActionType.ALL_CLICKS);
+            };
+
+            if (item.isFixedItem()) {
+                inventory.addDefaultItem(displayItem, slot, action, ActionType.ALL_CLICKS);
+            } else {
+                inventory.addItem(displayItem, slot, action, ActionType.ALL_CLICKS);
+            }
         }
 
         if (file.contains("Inventory.displays")) {
@@ -351,15 +388,11 @@ public class Menus extends InventoryUtils {
                     "{amount}",
                     "{amount_display}",
             }, new String[]{
-                    currency.getColor(),
+                    currency.getCurrencyColor(),
                     Bukkit.getOfflinePlayer(data.getUUID()).getName(),
                     String.valueOf(++pos),
                     NumberFormatter.getInstance().format(data.getCurrencyAmount(currency)),
-                    StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                            "{amount}"
-                    }, new String[]{
-                            NumberFormatter.getInstance().format(data.getCurrencyAmount(currency))
-                    })
+                    currency.getAmountDisplay(data.getCurrencyAmount(currency))
             }).build();
 
             inventory.addItem(item, slot);

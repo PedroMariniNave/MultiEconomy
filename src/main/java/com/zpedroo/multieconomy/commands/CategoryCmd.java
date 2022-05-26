@@ -1,6 +1,6 @@
 package com.zpedroo.multieconomy.commands;
 
-import com.zpedroo.multieconomy.objects.Category;
+import com.zpedroo.multieconomy.objects.category.Category;
 import com.zpedroo.multieconomy.utils.menu.Menus;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class CategoryCmd implements CommandExecutor {
 
-    private Category category;
+    private final Category category;
 
     public CategoryCmd(Category category) {
         this.category = category;

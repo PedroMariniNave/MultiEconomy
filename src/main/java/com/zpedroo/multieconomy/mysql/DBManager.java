@@ -2,9 +2,9 @@ package com.zpedroo.multieconomy.mysql;
 
 import com.zpedroo.multieconomy.enums.TransactionType;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.PlayerData;
-import com.zpedroo.multieconomy.objects.Transaction;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
+import com.zpedroo.multieconomy.objects.player.Transaction;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -16,50 +16,10 @@ import java.util.*;
 public class DBManager {
 
     public void saveData(PlayerData data) {
-        if (contains(data.getUUID().toString(), "uuid")) {
-            String query = "UPDATE `" + DBConnection.TABLE + "` SET" +
-                    "`uuid`='" + data.getUUID().toString() + "', " +
-                    "`currencies`='" + serializeCurrencies(data.getCurrencies()) + "', " +
-                    "`transactions`='" + serializeTransactions(data.getTransactions()) + "' " +
-                    "WHERE `uuid`='" + data.getUUID().toString() + "';";
-            executeUpdate(query);
-            return;
-        }
-
-        String query = "INSERT INTO `" + DBConnection.TABLE + "` (`uuid`, `currencies`, `transactions`) VALUES " +
+        executeUpdate("REPLACE INTO `" + DBConnection.TABLE + "` (`uuid`, `currencies`, `transactions`) VALUES " +
                 "('" + data.getUUID().toString() + "', " +
                 "'" + serializeCurrencies(data.getCurrencies()) + "', " +
-                "'" + serializeTransactions(data.getTransactions()) + "');";
-        executeUpdate(query);
-    }
-
-    public Map<UUID, PlayerData> getPlayerData() {
-        Map<UUID, PlayerData> data = new HashMap<>(1280);
-
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet result = null;
-        String query = "SELECT * FROM `" + DBConnection.TABLE + "`;";
-
-        try {
-            connection = getConnection();
-            preparedStatement = connection.prepareStatement(query);
-            result = preparedStatement.executeQuery();
-
-            while (result.next()) {
-                UUID uuid = UUID.fromString(result.getString(1));
-                Map<Currency, BigInteger> currencies = deserializeCurrencies(result.getString(2));
-                Map<Currency, List<Transaction>> transactions = deserializeTransactions(result.getString(3));
-
-                data.put(uuid, new PlayerData(uuid, currencies, transactions));
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            closeConnections(connection, result, preparedStatement, null);
-        }
-
-        return data;
+                "'" + serializeTransactions(data.getTransactions()) + "');");
     }
 
     public PlayerData loadData(UUID uuid) {
@@ -86,6 +46,35 @@ public class DBManager {
         }
 
         return new PlayerData(uuid, null, null);
+    }
+
+    public Map<UUID, PlayerData> getAllPlayersData() {
+        Map<UUID, PlayerData> data = new HashMap<>(1280);
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet result = null;
+        String query = "SELECT * FROM `" + DBConnection.TABLE + "`;";
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(query);
+            result = preparedStatement.executeQuery();
+
+            while (result.next()) {
+                UUID uuid = UUID.fromString(result.getString(1));
+                Map<Currency, BigInteger> currencies = deserializeCurrencies(result.getString(2));
+                Map<Currency, List<Transaction>> transactions = deserializeTransactions(result.getString(3));
+
+                data.put(uuid, new PlayerData(uuid, currencies, transactions));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            closeConnections(connection, result, preparedStatement, null);
+        }
+
+        return data;
     }
 
     private String serializeCurrencies(Map<Currency, BigInteger> toSerialize) {
@@ -134,11 +123,11 @@ public class DBManager {
             for (Transaction transaction : transactions) {
                 serialized.append(currency.getFileName()).append("#");
                 serialized.append(transaction.getActor().getName()).append("#");
-                serialized.append(transaction.getTarget().getName()).append("#");
+                serialized.append(transaction.getTarget() == null ? "Ninguém" : transaction.getTarget().getName()).append("#");
                 serialized.append(transaction.getAmount().toString()).append("#");
                 serialized.append(transaction.getType().toString()).append("#");
                 serialized.append(transaction.getCreationDateInMillis()).append("#");
-                serialized.append(transaction.getID()).append(",");
+                serialized.append(transaction.getId()).append(",");
             }
         }
 
@@ -160,11 +149,11 @@ public class DBManager {
             OfflinePlayer target = Bukkit.getOfflinePlayer(strSplit[2]);
             BigInteger amount = new BigInteger(strSplit[3]);
             TransactionType type = TransactionType.valueOf(strSplit[4]);
-            Long creationDateInMillis = Long.parseLong(strSplit[5]);
-            Integer id = Integer.parseInt(strSplit[6]);
+            long creationDateInMillis = Long.parseLong(strSplit[5]);
+            int id = Integer.parseInt(strSplit[6]);
 
             List<Transaction> transactions = ret.containsKey(currency) ? ret.get(currency) : new LinkedList<>();
-            transactions.add(new Transaction(actor, target, amount, type, creationDateInMillis, id));
+            transactions.add(Transaction.builder().actor(actor).target(target).amount(amount).type(type).creationDateInMillis(creationDateInMillis).id(id).build());
 
             ret.put(currency, transactions);
         }
@@ -172,7 +161,7 @@ public class DBManager {
         return ret;
     }
 
-    public Boolean contains(String value, String column) {
+    public boolean contains(String value, String column) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet result = null;
@@ -217,8 +206,7 @@ public class DBManager {
     }
 
     protected void createTable() {
-        String query = "CREATE TABLE IF NOT EXISTS `" + DBConnection.TABLE + "` (`uuid` VARCHAR(255) NOT NULL, `currencies` LONGTEXT NOT NULL, `transactions` LONGTEXT NOT NULL, PRIMARY KEY(`uuid`));";
-        executeUpdate(query);
+        executeUpdate("CREATE TABLE IF NOT EXISTS `" + DBConnection.TABLE + "` (`uuid` VARCHAR(255) NOT NULL, `currencies` LONGTEXT NOT NULL, `transactions` LONGTEXT NOT NULL, PRIMARY KEY(`uuid`));");
     }
 
     private Connection getConnection() throws SQLException {

@@ -17,10 +17,12 @@ Settings:
 
 Messages:
   buy-all-zero: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode comprar nenhum item!'
-  never-seen: '&6&lVoltz&f&lMC &8&l➜ &cEsse jogador nunca entrou no servidor!'
-  invalid-amount: '&6&lVoltz&f&lMC &8&l➜ &cValor inválido!'
+  offline-player: '&6&lVoltz&f&lMC &8&l➜ &cEsse jogador está offline!'
+  invalid-amount: '&6&lVoltz&f&lMC &8&l➜ &cO valor inserido é inválido!'
   min-value: '&6&lVoltz&f&lMC &8&l➜ &cA quantia precisa ser acima de {tax}!'
+  insufficient-stock: '&6&lVoltz&f&lMC &8&l➜ &cEsse item não possui estoque!'
   insufficient-currency: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui essa quantia! ({has}/{need})'
+  insufficient-level: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui nível suficiente! ({has}/{need})'
   need-space: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui espaço suficiente no seu inventário! ({has}/{need})'
   send-to-yourself: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode enviar {currency_name} para si mesmo!'
   sent:
@@ -75,13 +77,6 @@ Messages:
     - ' &8▶ &7Saldo a ser recebido: &f{received_display} &7(&f-{tax}%&7)'
     - ''
 
-Logs:
-  pay: '[{date}] - {currency_name}: PAY | {actor} ({actor_ip}) -> {target} ({target_ip}) | {amount} | [ID: {id}]'
-  item: '[{date}] - {currency_name}: ITEM | {actor} ({actor_ip}) -> {target} ({target_ip}) | {amount}'
-  edit: '[{date}] - {currency_name}: {action} | {actor} ({actor_ip}) -> {target} ({target_ip}) | {amount}'
-  withdraw: '[{date}] - {currency_name}: WITHDRAW | {actor} ({actor_ip}) | {amount} | [ID: {id}]'
-  deposit: '[{date}] - {currency_name}: DEPOSIT | {actor} ({actor_ip}) | {amount} | [ID: {id}]'
-
 Next-Page:
   type: ARROW
   name: '&aPróxima Página'
@@ -91,6 +86,17 @@ Previous-Page:
   type: ARROW
   name: '&cPágina Anterior'
   slot: 18
+
+Time-Formatter:
+  second: '&7segundo&f'
+  seconds: '&7segundos&f'
+  minute: '&7minuto&f'
+  minutes: '&7minutos&f'
+  hour: '&7hora&f'
+  hours: '&7horas&f'
+  day: '&7dia&f'
+  days: '&7dias&f'
+  now: '&fAgora'
 
 Number-Formatter:
   - "k"

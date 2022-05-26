@@ -1,9 +1,9 @@
 package com.zpedroo.multieconomy.managers.cache;
 
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.PlayerData;
-import com.zpedroo.multieconomy.objects.Category;
-import com.zpedroo.multieconomy.objects.Shop;
+import com.zpedroo.multieconomy.objects.category.Category;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
+import com.zpedroo.multieconomy.objects.general.Shop;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,21 +12,14 @@ import java.util.UUID;
 
 public class DataCache {
 
-    private Map<UUID, PlayerData> playerData;
-    private Map<String, Currency> currencies;
+    private final Map<UUID, PlayerData> playersData = new HashMap<>(128);
+    private final Map<String, Currency> currencies = new HashMap<>(4);
+    private final Map<String, Category> categories = new HashMap<>(8);
+    private final Map<String, Shop> shops = new HashMap<>(4);
     private Map<Currency, List<PlayerData>> topCurrencies;
-    private Map<String, Category> categories;
-    private Map<String, Shop> shops;
 
-    public DataCache() {
-        this.playerData = new HashMap<>(64);
-        this.currencies = new HashMap<>(4);
-        this.categories = new HashMap<>(8);
-        this.shops = new HashMap<>(4);
-    }
-
-    public Map<UUID, PlayerData> getPlayerData() {
-        return playerData;
+    public Map<UUID, PlayerData> getPlayersData() {
+        return playersData;
     }
 
     public Map<Currency, List<PlayerData>> getTop() {
@@ -43,10 +36,6 @@ public class DataCache {
 
     public Map<String, Shop> getShops() {
         return shops;
-    }
-
-    public void setPlayerData(Map<UUID, PlayerData> playerData) {
-        this.playerData = playerData;
     }
 
     public void setTopCurrencies(Map<Currency, List<PlayerData>> topCurrencies) {

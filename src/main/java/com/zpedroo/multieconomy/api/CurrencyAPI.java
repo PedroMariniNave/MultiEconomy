@@ -2,12 +2,13 @@ package com.zpedroo.multieconomy.api;
 
 import com.zpedroo.multieconomy.hooks.VaultEconomy;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.Transaction;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.Transaction;
 import org.bukkit.OfflinePlayer;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.UUID;
 
 public class CurrencyAPI {
 
@@ -19,23 +20,48 @@ public class CurrencyAPI {
         return DataManager.getInstance().getCache().getCurrencies().get(currencyName);
     }
 
+    @Deprecated
     public static BigInteger getCurrencyAmount(OfflinePlayer player, Currency currency) {
-        return DataManager.getInstance().load(player.getUniqueId()).getCurrencyAmount(currency);
+        return getCurrencyAmount(player.getUniqueId(), currency);
     }
 
+    public static BigInteger getCurrencyAmount(UUID uuid, Currency currency) {
+        return DataManager.getInstance().load(uuid).getCurrencyAmount(currency);
+    }
+
+    @Deprecated
     public static List<Transaction> getCurrencyTransactions(OfflinePlayer player, Currency currency) {
-        return DataManager.getInstance().load(player.getUniqueId()).getCurrencyTransactions(currency);
+        return getCurrencyTransactions(player.getUniqueId(), currency);
     }
 
+    public static List<Transaction> getCurrencyTransactions(UUID uuid, Currency currency) {
+        return DataManager.getInstance().load(uuid).getCurrencyTransactions(currency);
+    }
+
+    @Deprecated
     public static void setCurrencyAmount(OfflinePlayer player, Currency currency, BigInteger amount) {
-        DataManager.getInstance().load(player.getUniqueId()).setCurrencyAmount(currency, amount);
+        setCurrencyAmount(player.getUniqueId(), currency, amount);
     }
 
+    public static void setCurrencyAmount(UUID uuid, Currency currency, BigInteger amount) {
+        DataManager.getInstance().load(uuid).setCurrencyAmount(currency, amount);
+    }
+
+    @Deprecated
     public static void addCurrencyAmount(OfflinePlayer player, Currency currency, BigInteger amount) {
-        DataManager.getInstance().load(player.getUniqueId()).addCurrencyAmount(currency, amount);
+        addCurrencyAmount(player.getUniqueId(), currency, amount);
     }
 
+    public static void addCurrencyAmount(UUID uuid, Currency currency, BigInteger amount) {
+        DataManager.getInstance().load(uuid).addCurrencyAmount(currency, amount);
+    }
+
+    @Deprecated
     public static void removeCurrencyAmount(OfflinePlayer player, Currency currency, BigInteger amount) {
-        DataManager.getInstance().load(player.getUniqueId()).removeCurrencyAmount(currency, amount);
+        removeCurrencyAmount(player.getUniqueId(), currency, amount);
+    }
+
+    public static void removeCurrencyAmount(UUID uuid, Currency currency, BigInteger amount) {
+        DataManager.getInstance().load(uuid).removeCurrencyAmount(currency, amount);
     }
 }

@@ -2,7 +2,7 @@ package com.zpedroo.multieconomy.hooks;
 
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.Currency;
+import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -19,7 +19,7 @@ public class VaultEconomy implements Economy {
     private static VaultEconomy instance;
     public static VaultEconomy getInstance() { return instance; }
 
-    private Plugin plugin;
+    private final Plugin plugin;
     private Currency currency;
 
     public VaultEconomy(Plugin plugin, String currencyName) {

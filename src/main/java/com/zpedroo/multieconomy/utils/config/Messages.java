@@ -10,13 +10,17 @@ public class Messages {
 
     public static final String BUY_ALL_ZERO = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.buy-all-zero"));
 
-    public static final String NEVER_SEEN = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.never-seen"));
+    public static final String OFFLINE_PLAYER = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.offline-player"));
 
     public static final String INVALID_AMOUNT = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.invalid-amount"));
 
     public static final String TARGET_IS_SENDER = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.send-to-yourself"));
 
+    public static final String INSUFFICIENT_STOCK = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.insufficient-stock"));
+
     public static final String INSUFFICIENT_CURRENCY = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.insufficient-currency"));
+
+    public static final String INSUFFICIENT_LEVEL = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.insufficient-level"));
 
     public static final String NEED_SPACE = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.need-space"));
 

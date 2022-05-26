@@ -13,7 +13,7 @@ public class InventoryManager {
         instance = this;
     }
 
-    public Integer getFreeSpace(Player player, ItemStack item) {
+    public int getFreeSpace(Player player, ItemStack item) {
         int free = 0;
 
         for (int slot = 0; slot < 36; ++slot) {

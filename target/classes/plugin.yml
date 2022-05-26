@@ -1,8 +1,9 @@
 name: MultiEconomy
-description: ${project.description}
+description: Complete plugin to create infinite currencies and shops.
 version: 1.0
 api-version: 1.8
 author: zPedroo_
 main: com.zpedroo.multieconomy.MultiEconomy
+depend: [OnlineTime]
 softdepend: [Vault, PlaceholderAPI]
 load: STARTUP

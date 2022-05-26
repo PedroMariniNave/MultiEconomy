@@ -1,21 +1,16 @@
 package com.zpedroo.multieconomy.hooks;
 
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.objects.Currency;
-import com.zpedroo.multieconomy.objects.PlayerData;
+import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.Locale;
-
 public class PlaceholderAPIHook extends PlaceholderExpansion {
 
-    private Plugin plugin;
+    private final Plugin plugin;
 
     public PlaceholderAPIHook(Plugin plugin) {
         this.plugin = plugin;
@@ -41,14 +36,5 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         PlayerData data = DataManager.getInstance().load(player.getUniqueId());
 
         return NumberFormatter.getInstance().format(data.getCurrencyAmount(currency));
-    }
-
-    private String format(Integer value) {
-        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
-        DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
-        symbols.setGroupingSeparator('.');
-        formatter.setDecimalFormatSymbols(symbols);
-
-        return formatter.format(value);
     }
 }

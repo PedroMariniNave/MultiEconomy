@@ -14,27 +14,27 @@ import static com.zpedroo.multieconomy.utils.builder.InventoryUtils.*;
 
 public class InventoryBuilder {
 
-    private Inventory inventory;
-    private String title;
-    private Integer size;
-    private ItemStack previousPageItem;
-    private Integer previousPageSlot;
-    private InventoryBuilder previousPageInventory;
-    private ItemStack nextPageItem;
-    private Integer nextPageSlot;
+    private final Inventory inventory;
+    private final String title;
+    private final int size;
+    private final ItemStack previousPageItem;
+    private final int previousPageSlot;
+    private final InventoryBuilder previousPageInventory;
+    private final ItemStack nextPageItem;
+    private final int nextPageSlot;
     private InventoryBuilder nextPageInventory;
     private Table<Integer, ItemStack, List<Action>> defaultItems;
-    private Table<Integer, ActionType, Action> actions;
+    private final Table<Integer, ActionType, Action> actions;
 
-    public InventoryBuilder(String title, Integer size) {
-        this(title, size, null, null, null, null, null, null);
+    public InventoryBuilder(String title, int size) {
+        this(title, size, null, -1, null, null, -1, null);
     }
 
-    public InventoryBuilder(String title, Integer size, ItemStack previousPageItem, Integer previousPageSlot, ItemStack nextPageItem, Integer nextPageSlot) {
+    public InventoryBuilder(String title, int size, ItemStack previousPageItem, int previousPageSlot, ItemStack nextPageItem, int nextPageSlot) {
         this(title, size, previousPageItem, previousPageSlot, null, nextPageItem, nextPageSlot, null);
     }
 
-    public InventoryBuilder(String title, Integer size, ItemStack previousPageItem, Integer previousPageSlot, InventoryBuilder previousPageInventory, ItemStack nextPageItem, Integer nextPageSlot, Table<Integer, ItemStack, List<Action>> defaultItems) {
+    public InventoryBuilder(String title, int size, ItemStack previousPageItem, int previousPageSlot, InventoryBuilder previousPageInventory, ItemStack nextPageItem, int nextPageSlot, Table<Integer, ItemStack, List<Action>> defaultItems) {
         this.inventory = Bukkit.createInventory(null, size, title);
         this.title = title;
         this.size = size;
@@ -49,7 +49,7 @@ public class InventoryBuilder {
 
     public void open(Player player) {
         if (previousPageInventory != null) {
-            if (previousPageItem != null && previousPageSlot != null && inventory.getItem(previousPageSlot) == null) {
+            if (previousPageItem != null && previousPageSlot != -1 && inventory.getItem(previousPageSlot) == null) {
                 addItem(previousPageItem, previousPageSlot, () -> {
                     previousPageInventory.open(player);
                 }, ActionType.ALL_CLICKS);
@@ -57,7 +57,7 @@ public class InventoryBuilder {
         }
 
         if (nextPageInventory != null) {
-            if (nextPageItem != null && nextPageSlot != null && inventory.getItem(nextPageSlot) == null) {
+            if (nextPageItem != null && nextPageSlot != -1 && inventory.getItem(nextPageSlot) == null) {
                 addItem(nextPageItem, nextPageSlot, () -> {
                     nextPageInventory.open(player);
                 }, ActionType.ALL_CLICKS);
@@ -90,7 +90,7 @@ public class InventoryBuilder {
     public void addItem(@NotNull ItemStack item, @NotNull Integer slot, Runnable action, ActionType actionType) {
         if (inventory.getItem(slot) != null) {
             if (nextPageInventory == null) {
-                if (nextPageItem == null || nextPageSlot == null) return;
+                if (nextPageItem == null || nextPageSlot == -1) return;
 
                 nextPageInventory = new InventoryBuilder(title, size, previousPageItem, previousPageSlot, this, nextPageItem, nextPageSlot, defaultItems);
             }

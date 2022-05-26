@@ -18,8 +18,8 @@ public class FileUtils {
     private static FileUtils instance;
     public static FileUtils get() { return instance; }
 
-    private Plugin plugin;
-    private Map<Files, FileManager> files;
+    private final Plugin plugin;
+    private final Map<Files, FileManager> files;
 
     public FileUtils(Plugin plugin) {
         instance = this;
@@ -27,7 +27,7 @@ public class FileUtils {
         this.files = new HashMap<>(Files.values().length);
 
         for (Files files : Files.values()) {
-            getFiles().put(files, new FileManager(files));
+            this.files.put(files, new FileManager(files));
         }
     }
 
@@ -40,42 +40,42 @@ public class FileUtils {
     }
 
     public List<String> getStringList(Files file, String path) {
-        return getFiles().get(file).get().getStringList(path);
+        return getFile(file).get().getStringList(path);
     }
 
-    public Boolean getBoolean(Files file, String path) {
+    public boolean getBoolean(Files file, String path) {
         return getFile(file).get().getBoolean(path);
     }
 
-    public Integer getInt(Files file, String path) {
+    public int getInt(Files file, String path) {
         return getInt(file, path, 0);
     }
 
-    public Integer getInt(Files file, String path, int defaultValue) {
+    public int getInt(Files file, String path, int defaultValue) {
         return getFile(file).get().getInt(path, defaultValue);
     }
 
-    public Long getLong(Files file, String path) {
+    public long getLong(Files file, String path) {
         return getLong(file, path, 0);
     }
 
-    public Long getLong(Files file, String path, long defaultValue) {
+    public long getLong(Files file, String path, long defaultValue) {
         return getFile(file).get().getLong(path, defaultValue);
     }
 
-    public Double getDouble(Files file, String path) {
+    public double getDouble(Files file, String path) {
         return getDouble(file, path, 0);
     }
 
-    public Double getDouble(Files file, String path, double defaultValue) {
+    public double getDouble(Files file, String path, double defaultValue) {
         return getFile(file).get().getDouble(path, defaultValue);
     }
 
-    public Float getFloat(Files file, String path) {
+    public float getFloat(Files file, String path) {
         return getFloat(file, path, 0);
     }
 
-    public Float getFloat(Files file, String path, float defaultValue) {
+    public float getFloat(Files file, String path, float defaultValue) {
         return (float) getFile(file).get().getDouble(path, defaultValue);
     }
 
@@ -84,11 +84,7 @@ public class FileUtils {
     }
 
     public FileManager getFile(Files file) {
-        return getFiles().get(file);
-    }
-
-    public Map<Files, FileManager> getFiles() {
-        return files;
+        return this.files.get(file);
     }
 
     private void copy(InputStream is, File file) {
@@ -109,26 +105,23 @@ public class FileUtils {
     }
 
     public enum Files {
-        CONFIG("config", "yml", "configuration-files", "", false),
-        IDS("ids", "yml", "configuration-files", "", false),
-        LOGS("logs", "log", "configuration-files", "", false),
-        MAIN("main", "yml", "menus", "menus", false),
-        INFO("info", "yml", "menus", "menus", false),
-        TOP("top", "yml", "menus", "menus", false),
-        TRANSACTIONS("transactions", "yml", "menus", "menus", false),
-        COINS("coins", "yml", "currencies", "currencies", true),
-        EXAMPLE("example", "yml", "categories", "categories", true),
-        SHOP("shop", "yml", "shops", "shops", true);
+        CONFIG("config", "configuration-files", "", false),
+        IDS("ids", "configuration-files", "", false),
+        MAIN("main", "menus", "menus", false),
+        INFO("info", "menus", "menus", false),
+        TOP("top", "menus", "menus", false),
+        TRANSACTIONS("transactions", "menus", "menus", false),
+        COINS("coins", "currencies", "currencies", true),
+        EXAMPLE("example", "categories", "categories", true),
+        SHOP("shop", "shops", "shops", true);
 
-        private String name;
-        private String extension;
-        private String resource;
-        private String folder;
-        private Boolean requireEmpty;
+        private final String name;
+        private final String resource;
+        private final String folder;
+        private final boolean requireEmpty;
 
-        Files(String name, String extension, String resource, String folder, Boolean requireEmpty) {
+        Files(String name, String resource, String folder, boolean requireEmpty) {
             this.name = name;
-            this.extension = extension;
             this.resource = resource;
             this.folder = folder;
             this.requireEmpty = requireEmpty;
@@ -136,10 +129,6 @@ public class FileUtils {
 
         public String getName() {
             return name;
-        }
-
-        public String getExtension() {
-            return extension;
         }
 
         public String getResource() {
@@ -150,21 +139,21 @@ public class FileUtils {
             return folder;
         }
 
-        public Boolean requireEmpty() {
+        public boolean isRequireEmpty() {
             return requireEmpty;
         }
     }
 
     public class FileManager {
 
-        private File file;
+        private final File file;
         private FileConfiguration fileConfig;
 
         public FileManager(Files file) {
-            this.file = new File(plugin.getDataFolder() + (file.getFolder().isEmpty() ? "" : "/" + file.getFolder()), file.getName() + '.' + file.getExtension());
+            this.file = new File(plugin.getDataFolder() + (file.getFolder().isEmpty() ? "" : "/" + file.getFolder()), file.getName() + ".yml");
 
             if (!this.file.exists()) {
-                if (file.requireEmpty()) {
+                if (file.isRequireEmpty()) {
                     File folder = new File(plugin.getDataFolder(), file.getFolder());
                     if (folder.listFiles() != null) {
                         if (Stream.of(folder.listFiles()).map(YamlConfiguration::loadConfiguration).count() > 0) return;
@@ -175,13 +164,11 @@ public class FileUtils {
                     this.file.getParentFile().mkdirs();
                     this.file.createNewFile();
 
-                    copy(plugin.getResource((file.getResource().isEmpty() ? "" : file.getResource() + "/") + file.getName() + '.' + file.getExtension()), this.file);
+                    copy(plugin.getResource((file.getResource().isEmpty() ? "" : file.getResource() + "/") + file.getName() + ".yml"), this.file);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
-
-            if (!StringUtils.equals(file.getExtension(), "yml")) return;
 
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file), StandardCharsets.UTF_8));

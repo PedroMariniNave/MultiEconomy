@@ -4,6 +4,11 @@ Settings:
   # Para não usar, basta remover.
   open-permission: 'loja.exemplo'
   permission-message: '&cVocê não possui permissão para abrir essa loja!'
+  restock-date: 'EVERYDAY:23:59'
+  restock-messages:
+    - ''
+    - '&7O estoque da categoria &fexample &7foi reabastecido! Confira digitando &f/example&7.'
+    - ''
 
 Inventory:
   title: 'Loja Exemplo'
@@ -30,6 +35,8 @@ Inventory:
         lore:
           - '&7Wooow esmeralda'
     2:
+      # Quantia de itens disponibilizados por estoque
+      max-stock: 100
       # Opcional usado para executar comandos na quantia certa
       default-amount: 4
       currency: coins
@@ -38,6 +45,9 @@ Inventory:
         type: EMERALD
         name: '&2Esmeralda'
         lore:
+          - '&7Estoque: &f{stock_amount}&7/&f{max_stock}'
+          - '&7Próximo estoque em: &f{next_restock}'
+          - ''
           - '&7Preço: {price}'
         amount: 4
       # Comandos que serão executados
