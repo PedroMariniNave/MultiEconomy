@@ -59,11 +59,7 @@ public class SchedulerLoader extends SchedulerExecutor {
 
         String formattedDate = parseDate(restockDate);
 
-        return Task.builder()
-                .category(category)
-                .restockMessages(restockMessages)
-                .cronScheduleBuilder(CronScheduleBuilder.cronSchedule(formattedDate))
-                .build();
+        return new Task(category, restockMessages, CronScheduleBuilder.cronSchedule(formattedDate));
     }
 
     private String parseDate(String date) {

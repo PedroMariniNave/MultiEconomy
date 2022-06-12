@@ -4,6 +4,7 @@ import com.zpedroo.multieconomy.hooks.PlaceholderAPIHook;
 import com.zpedroo.multieconomy.hooks.VaultEconomy;
 import com.zpedroo.multieconomy.listeners.PlayerGeneralListeners;
 import com.zpedroo.multieconomy.listeners.ShopListeners;
+import com.zpedroo.multieconomy.listeners.TagListeners;
 import com.zpedroo.multieconomy.listeners.WithdrawListeners;
 import com.zpedroo.multieconomy.managers.DataManager;
 import com.zpedroo.multieconomy.managers.InventoryManager;
@@ -60,6 +61,10 @@ public class MultiEconomy extends JavaPlugin {
 
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook(this);
+        }
+
+        if (getServer().getPluginManager().getPlugin("Legendchat") != null) {
+            getServer().getPluginManager().registerEvents(new TagListeners(), this);
         }
 
         registerListeners();

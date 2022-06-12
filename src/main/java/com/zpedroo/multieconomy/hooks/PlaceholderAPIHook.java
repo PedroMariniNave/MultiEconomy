@@ -33,7 +33,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         Currency currency = DataManager.getInstance().getCache().getCurrencies().get(identifier);
         if (currency == null) return "0";
 
-        PlayerData data = DataManager.getInstance().load(player.getUniqueId());
+        PlayerData data = DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId());
 
         return NumberFormatter.getInstance().format(data.getCurrencyAmount(currency));
     }

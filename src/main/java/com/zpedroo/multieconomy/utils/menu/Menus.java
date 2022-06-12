@@ -54,11 +54,13 @@ public class Menus extends InventoryUtils {
         for (String str : FileUtils.get().getSection(file, "Inventory.items")) {
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Inventory.items." + str, new String[]{
                     "{color}",
+                    "{tag}",
                     "{player}",
                     "{amount}",
                     "{amount_display}",
             }, new String[]{
                     currency.getCurrencyColor(),
+                    currency.isTopOne(player) ? currency.getTopOneTag() + " " : "",
                     player.getName(),
                     NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(player, currency)),
                     currency.getAmountDisplay(CurrencyAPI.getCurrencyAmount(player, currency))
@@ -76,8 +78,6 @@ public class Menus extends InventoryUtils {
                         }
 
                         for (String msg : Messages.WITHDRAW) {
-                            if (msg == null) continue;
-
                             player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                                     "{tax}"
                             }, new String[]{
@@ -109,11 +109,13 @@ public class Menus extends InventoryUtils {
         for (String str : FileUtils.get().getSection(file, "Inventory.items")) {
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Inventory.items." + str, new String[]{
                     "{color}",
+                    "{tag}",
                     "{player}",
                     "{amount}",
                     "{amount_display}"
             }, new String[]{
                     currency.getCurrencyColor(),
+                    currency.isTopOne(target.getUniqueId()) ? currency.getTopOneTag() + " " : "",
                     target.getName(),
                     NumberFormatter.getInstance().format(CurrencyAPI.getCurrencyAmount(target, currency)),
                     currency.getAmountDisplay(CurrencyAPI.getCurrencyAmount(target, currency))
@@ -166,7 +168,7 @@ public class Menus extends InventoryUtils {
                         transaction.getTarget() == null ? "Ninguém" : transaction.getTarget().getName(),
                         NumberFormatter.getInstance().format(transaction.getAmount()),
                         currency.getAmountDisplay(transaction.getAmount()),
-                        dateFormat.format(transaction.getCreationDateInMillis()),
+                        dateFormat.format(transaction.getCreationTimestamp()),
                         String.valueOf(transaction.getId())
                 }).build();
                 int slot = Integer.parseInt(slots[i]);
@@ -212,7 +214,6 @@ public class Menus extends InventoryUtils {
                     switch (split[0].toUpperCase()) {
                         case "OPEN":
                             Category toOpen = DataManager.getInstance().getCache().getCategories().get(split[1]);
-
                             if (toOpen != null) openCategoryMenu(player, toOpen);
                             break;
                         case "PLAYER":
@@ -268,8 +269,7 @@ public class Menus extends InventoryUtils {
                 }, new String[]{
                         String.valueOf(item.getStockAmount()),
                         String.valueOf(item.getMaxStock()),
-                        task == null ? "-/-" :
-                                TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
+                        task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
                 }));
             }
 
@@ -285,8 +285,7 @@ public class Menus extends InventoryUtils {
                     }, new String[]{
                             String.valueOf(item.getStockAmount()),
                             String.valueOf(item.getMaxStock()),
-                            task == null ? "-/-" :
-                                    TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
+                            task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
                     }));
                 }
 
@@ -338,12 +337,10 @@ public class Menus extends InventoryUtils {
                         switch (split[0].toUpperCase()) {
                             case "CATEGORY":
                                 Category categoryToOpen = DataManager.getInstance().getCache().getCategories().get(split[1]);
-
                                 if (categoryToOpen != null) openCategoryMenu(player, categoryToOpen);
                                 break;
                             case "SHOP":
                                 Shop shopToOpen = DataManager.getInstance().getCache().getShops().get(split[1]);
-
                                 if (shopToOpen != null) openShopMenu(player, shopToOpen);
                                 break;
                             case "PLAYER":
@@ -377,18 +374,20 @@ public class Menus extends InventoryUtils {
 
         int pos = 0;
 
-        List<PlayerData> topCurrency = DataManager.getInstance().getCache().getTop().get(currency);
+        List<PlayerData> topCurrency = DataManager.getInstance().getCache().getTopCurrencies().get(currency);
 
         for (PlayerData data : topCurrency) {
             int slot = Integer.parseInt(topSlots[pos]);
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Item", new String[]{
                     "{color}",
+                    "{tag}",
                     "{player}",
                     "{pos}",
                     "{amount}",
                     "{amount_display}",
             }, new String[]{
                     currency.getCurrencyColor(),
+                    currency.isTopOne(data.getUUID()) ? currency.getTopOneTag() + " " : "",
                     Bukkit.getOfflinePlayer(data.getUUID()).getName(),
                     String.valueOf(++pos),
                     NumberFormatter.getInstance().format(data.getCurrencyAmount(currency)),

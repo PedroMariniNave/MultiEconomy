@@ -174,7 +174,7 @@ public class CurrencyCmd implements CommandExecutor {
                         return true;
                     }
 
-                    targetData = DataManager.getInstance().load(target.getUniqueId());
+                    targetData = DataManager.getInstance().getPlayerDataByUUID(target.getUniqueId());
                     if (StringUtils.equals(args[0].toUpperCase(), "GIVE")) {
                         targetData.addCurrencyAmount(currency, amount);
                     } else {
@@ -285,10 +285,8 @@ public class CurrencyCmd implements CommandExecutor {
                 }
             }
 
-            DataManager.getInstance().load(player.getUniqueId()).addTransaction(currency,Transaction.builder().actor(player)
-                    .target(target).amount(amount).type(TransactionType.REMOVE).creationDateInMillis(System.currentTimeMillis()).id(id).build());
-            DataManager.getInstance().load(target.getUniqueId()).addTransaction(currency, Transaction.builder().actor(player)
-                    .target(target).amount(amount).type(TransactionType.ADD).creationDateInMillis(System.currentTimeMillis()).id(id).build());
+            DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId()).addTransaction(currency,new Transaction(player, target, amount, TransactionType.REMOVE, System.currentTimeMillis(), id));
+            DataManager.getInstance().getPlayerDataByUUID(target.getUniqueId()).addTransaction(currency, new Transaction(player, target, amount, TransactionType.ADD, System.currentTimeMillis(), id));
         }
     }
 }

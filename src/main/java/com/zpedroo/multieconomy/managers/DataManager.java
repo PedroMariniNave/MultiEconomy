@@ -1,9 +1,11 @@
 package com.zpedroo.multieconomy.managers;
 
 import com.zpedroo.multieconomy.MultiEconomy;
+import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.commands.CategoryCmd;
 import com.zpedroo.multieconomy.commands.CurrencyCmd;
 import com.zpedroo.multieconomy.commands.ShopCmd;
+import com.zpedroo.multieconomy.commands.TopOneCmd;
 import com.zpedroo.multieconomy.managers.cache.DataCache;
 import com.zpedroo.multieconomy.mysql.DBConnection;
 import com.zpedroo.multieconomy.objects.category.Category;
@@ -12,11 +14,17 @@ import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.objects.general.Shop;
 import com.zpedroo.multieconomy.objects.player.PlayerData;
 import com.zpedroo.multieconomy.utils.builder.ItemBuilder;
+import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
+import org.apache.commons.lang3.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -38,7 +46,7 @@ public class DataManager {
         MultiEconomy.get().getServer().getScheduler().runTaskLaterAsynchronously(MultiEconomy.get(), this::updateTopCurrencies, 0L);
     }
 
-    public PlayerData load(UUID uuid) {
+    public PlayerData getPlayerDataByUUID(UUID uuid) {
         PlayerData data = dataCache.getPlayersData().get(uuid);
         if (data == null) {
             data = DBConnection.getInstance().getDBManager().loadData(uuid);
@@ -54,7 +62,7 @@ public class DataManager {
         return DBConnection.getInstance().getDBManager().contains(uuid.toString(), "uuid");
     }
 
-    public void save(UUID uuid) {
+    public void savePlayerData(UUID uuid) {
         PlayerData data = dataCache.getPlayersData().get(uuid);
         if (data == null) return;
         if (!data.isQueueUpdate()) return;
@@ -64,11 +72,56 @@ public class DataManager {
     }
 
     public void saveAll() {
-        new HashSet<>(dataCache.getPlayersData().keySet()).forEach(this::save);
+        new HashSet<>(dataCache.getPlayersData().keySet()).forEach(this::savePlayerData);
     }
 
     public void updateTopCurrencies() {
         dataCache.setTopCurrencies(getTopCurrencies());
+
+        new BukkitRunnable() { // run a little later
+            @Override
+            public void run() {
+                for (Currency currency : dataCache.getCurrencies().values()) {
+                    if (currency.getTopOneTag().isEmpty()) continue; // disabled
+
+                    UUID newTopOneUniqueId = currency.getTopOneUniqueId();
+                    if (newTopOneUniqueId == null) continue;
+
+                    UUID oldCachedTopOneUniqueId = dataCache.getTopsOne().get(currency);
+                    if (oldCachedTopOneUniqueId != null && oldCachedTopOneUniqueId.equals(newTopOneUniqueId)) continue;
+
+                    dataCache.getTopsOne().put(currency, newTopOneUniqueId);
+
+                    if (oldCachedTopOneUniqueId == null) continue;
+
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(newTopOneUniqueId);
+                    BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(newTopOneUniqueId, currency);
+
+                    for (String msg : Messages.NEW_TOP_ONE) {
+                        Bukkit.broadcastMessage(StringUtils.replaceEach(msg, new String[]{
+                                "{player}",
+                                "{tag}",
+                                "{amount}",
+                                "{amount_display}"
+                        }, new String[]{
+                                player.getName(),
+                                currency.getTopOneTag(),
+                                NumberFormatter.getInstance().format(currencyAmount),
+                                currency.getAmountDisplay(currencyAmount)
+                        }));
+                    }
+
+                    // double sound = extra thunder effect
+                    if (player.isOnline()) {
+                        player.getPlayer().getWorld().strikeLightningEffect(player.getPlayer().getLocation());
+                        player.getPlayer().getWorld().strikeLightningEffect(player.getPlayer().getLocation());
+                    } else {
+                        Bukkit.getOnlinePlayers().forEach(players -> players.playSound(players.getLocation(), Sound.AMBIENCE_THUNDER, 1f, 1f));
+                        Bukkit.getOnlinePlayers().forEach(players -> players.playSound(players.getLocation(), Sound.AMBIENCE_THUNDER, 1f, 1f));
+                    }
+                }
+            }
+        }.runTaskLater(MultiEconomy.get(), 20L);
     }
 
     private void loadShops() {
@@ -86,7 +139,7 @@ public class DataManager {
             String permissionMessage = file.contains("Settings.permission-message") ?
                     ChatColor.translateAlternateColorCodes('&', file.getString("Settings.permission-message")) : null;
 
-            Shop shop = Shop.builder().file(file).openPermission(openPermission).permissionMessage(permissionMessage).build();
+            Shop shop = new Shop(file, openPermission, permissionMessage);
             dataCache.getShops().put(name, shop);
 
             if (command == null || aliases == null || command.isEmpty()) continue;
@@ -136,15 +189,20 @@ public class DataManager {
             String currencyDisplay = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.currency-display"));
             String currencyColor = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.currency-color"));
             String amountDisplay = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.amount-display"));
+            String topOneTag = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.top-one.tag", ""));
+            String topOneCommand = file.getString("Currency-Settings.top-one.command", null);
+            List<String> topOneAliases = file.getStringList("Currency-Settings.top-one.aliases");
             int taxPerTransaction = file.getInt("Currency-Settings.tax-per-transaction", 0);
             ItemStack item = ItemBuilder.build(file, "Item").build();
 
-            Currency currency = Currency.builder().titles(titles).inventoryTitles(inventoryTitles).commandKeys(commandKeys)
-                    .fileName(fileName).currencyName(currencyName).currencyDisplay(currencyDisplay).currencyColor(currencyColor)
-                    .amountDisplay(amountDisplay).taxPerTransaction(taxPerTransaction).item(item).build();
+            Currency currency = new Currency(titles, inventoryTitles, commandKeys, fileName, currencyName, currencyDisplay, currencyColor, amountDisplay, topOneTag, taxPerTransaction, item);
             dataCache.getCurrencies().put(fileName, currency);
 
             MultiEconomy.get().registerCommand(command, aliases, permission, permissionMessage, new CurrencyCmd(currency));
+
+            if (topOneCommand != null) {
+                MultiEconomy.get().registerCommand(topOneCommand, topOneAliases, null, null, new TopOneCmd(currency));
+            }
         }
     }
 
@@ -188,15 +246,12 @@ public class DataManager {
                 boolean fixedItem = file.getBoolean("Inventory.items." + str + ".fixed-item", false);
                 List<String> commands = file.getStringList("Inventory.items." + str + ".commands");
 
-                CategoryItem categoryItem = CategoryItem.builder().permission(permission).permissionMessage(permissionMessage).currency(currency)
-                        .price(price).defaultAmount(defaultAmount).display(display).itemToGive(itemToGive).requiredLevel(requiredLevel)
-                        .maxStock(maxStock).stockAmount(maxStock).inventoryLimit(inventoryLimit).fixedItem(fixedItem).commands(commands).build();
+                CategoryItem categoryItem = new CategoryItem(permission, permissionMessage, currency, price, defaultAmount, display, itemToGive, requiredLevel, maxStock, inventoryLimit, fixedItem, commands);
 
                 categoryItems.add(categoryItem);
             }
 
-            Category category = Category.builder().file(fl).fileConfiguration(file).openPermission(openPermission)
-                    .permissionMessage(openPermissionMessage).items(categoryItems).build();
+            Category category = new Category(fl, file, openPermission, openPermissionMessage, categoryItems);
 
             dataCache.getCategories().put(name, category);
 
@@ -206,22 +261,17 @@ public class DataManager {
         }
     }
 
-    public Map<Currency, List<PlayerData>> getTopCurrencies() {
+    protected Map<Currency, List<PlayerData>> getTopCurrencies() {
         Map<Currency, List<PlayerData>> ret = new HashMap<>(dataCache.getCurrencies().size() * 10);
         Map<UUID, PlayerData> allPlayersData = DBConnection.getInstance().getDBManager().getAllPlayersData();
 
         for (Currency currency : dataCache.getCurrencies().values()) {
             new Thread(() -> {
                 Map<UUID, BigInteger> values = new HashMap<>(allPlayersData.size());
-                allPlayersData.values().forEach(data -> {
-                    values.put(data.getUUID(), data.getCurrencyAmount(currency));
-                });
+                allPlayersData.values().forEach(data -> values.put(data.getUUID(), data.getCurrencyAmount(currency)));
 
                 List<PlayerData> dataList = new LinkedList<>();
-
-                getSorted(values, 10).keySet().forEach(uuid -> {
-                    dataList.add(DataManager.getInstance().load(uuid));
-                });
+                getSorted(values, 10).keySet().forEach(uuid -> dataList.add(DataManager.getInstance().getPlayerDataByUUID(uuid)));
 
                 ret.put(currency, dataList);
             }).start();

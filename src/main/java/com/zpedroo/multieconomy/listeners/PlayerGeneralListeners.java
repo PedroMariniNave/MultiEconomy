@@ -42,7 +42,7 @@ public class PlayerGeneralListeners implements Listener {
         if (amount.signum() <= 0) return;
 
         Player player = event.getPlayer();
-        PlayerData data = DataManager.getInstance().load(player.getUniqueId());
+        PlayerData data = DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId());
         if (data == null) return;
 
         item.setAmount(1);
@@ -58,12 +58,11 @@ public class PlayerGeneralListeners implements Listener {
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
 
         int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getFileName()) + 1;
-        data.addTransaction(currency, Transaction.builder().actor(player).target(null).amount(amount).type(TransactionType.DEPOSIT)
-                .creationDateInMillis(System.currentTimeMillis()).id(id).build());
+        data.addTransaction(currency, new Transaction(player, null, amount, TransactionType.DEPOSIT, System.currentTimeMillis(), id));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
-        DataManager.getInstance().save(event.getPlayer().getUniqueId());
+        DataManager.getInstance().savePlayerData(event.getPlayer().getUniqueId());
     }
 }

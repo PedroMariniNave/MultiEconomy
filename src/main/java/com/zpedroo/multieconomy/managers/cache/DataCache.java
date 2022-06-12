@@ -13,6 +13,7 @@ import java.util.UUID;
 public class DataCache {
 
     private final Map<UUID, PlayerData> playersData = new HashMap<>(128);
+    private final Map<Currency, UUID> topsOne = new HashMap<>(4);
     private final Map<String, Currency> currencies = new HashMap<>(4);
     private final Map<String, Category> categories = new HashMap<>(8);
     private final Map<String, Shop> shops = new HashMap<>(4);
@@ -22,8 +23,12 @@ public class DataCache {
         return playersData;
     }
 
-    public Map<Currency, List<PlayerData>> getTop() {
+    public Map<Currency, List<PlayerData>> getTopCurrencies() {
         return topCurrencies;
+    }
+
+    public Map<Currency, UUID> getTopsOne() {
+        return topsOne;
     }
 
     public Map<String, Currency> getCurrencies() {

@@ -4,7 +4,7 @@ Inventory:
     1:
       type: SKULL_ITEM
       owner: "{player}"
-      name: "{color}Informações de {player}"
+      name: "{tag}{color}Informações de {player}"
       lore:
         - '&7Abaixo estão as informações'
         - '&7do jogador:'

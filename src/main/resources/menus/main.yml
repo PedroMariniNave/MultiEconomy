@@ -5,7 +5,7 @@ Inventory:
       action: WITHDRAW
       type: SKULL_ITEM
       owner: "{player}"
-      name: "{color}{player}"
+      name: "{tag}{color}{player}"
       lore:
         - '&7Abaixo estão suas informações:'
         - ''

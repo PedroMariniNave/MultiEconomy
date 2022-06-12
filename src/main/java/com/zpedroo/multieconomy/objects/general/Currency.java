@@ -1,20 +1,20 @@
 package com.zpedroo.multieconomy.objects.general;
 
+import com.zpedroo.multieconomy.managers.DataManager;
+import com.zpedroo.multieconomy.objects.player.PlayerData;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import de.tr7zw.nbtapi.NBTItem;
-import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
-@Builder
 public class Currency {
 
     private final Map<String, String[]> titles;
@@ -25,6 +25,7 @@ public class Currency {
     private final String currencyDisplay;
     private final String currencyColor;
     private final String amountDisplay;
+    private final String topOneTag;
     private final int taxPerTransaction;
     private final ItemStack item;
 
@@ -67,6 +68,21 @@ public class Currency {
 
     public String getAmountDisplay(BigInteger amount) {
         return StringUtils.replace(amountDisplay, "{amount}", NumberFormatter.getInstance().format(amount));
+    }
+
+    public UUID getTopOneUniqueId() {
+        List<PlayerData> topCurrency = DataManager.getInstance().getCache().getTopCurrencies().get(this);
+        if (topCurrency == null || topCurrency.isEmpty()) return null;
+
+        return topCurrency.stream().findFirst().get().getUUID();
+    }
+
+    public boolean isTopOne(@NotNull Player player) {
+        return isTopOne(player.getUniqueId());
+    }
+
+    public boolean isTopOne(UUID uuid) {
+        return getTopOneUniqueId().equals(uuid);
     }
 
     /*

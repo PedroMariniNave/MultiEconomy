@@ -26,6 +26,8 @@ public class Messages {
 
     public static final String MIN_VALUE = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.min-value"));
 
+    public static final String TOP_ONE_DISPLAY = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.top-one-display"));
+
     public static final List<String> SENT = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.sent"));
 
     public static final List<String> RECEIVED = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.received"));
@@ -37,6 +39,8 @@ public class Messages {
     public static final List<String> SUCCESSFUL_PURCHASED = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.successful-purchased"));
 
     public static final List<String> CONFIRM = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.confirm"));
+
+    public static final List<String> NEW_TOP_ONE = getColored(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.new-top-one"));
 
     private static String getColored(String str) {
         return ChatColor.translateAlternateColorCodes('&', str);

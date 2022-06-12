@@ -1,7 +1,6 @@
 package com.zpedroo.multieconomy.objects.category;
 
 import com.zpedroo.multieconomy.objects.general.Currency;
-import lombok.Builder;
 import lombok.Data;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,7 +8,6 @@ import java.math.BigInteger;
 import java.util.List;
 
 @Data
-@Builder
 public class CategoryItem {
 
     private final String permission;

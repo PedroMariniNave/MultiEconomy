@@ -5,7 +5,7 @@ Inventory:
 Item:
   type: SKULL_ITEM
   owner: "{player}"
-  name: "{color}{player} &7[&f{pos}º&7]"
+  name: "{tag}{color}{player} &7[&f{pos}º&7]"
   lore:
     - '&7Abaixo estão as informações'
     - '&7do jogador:'

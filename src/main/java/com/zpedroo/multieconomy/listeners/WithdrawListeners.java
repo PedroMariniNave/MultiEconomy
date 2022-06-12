@@ -69,9 +69,8 @@ public class WithdrawListeners implements Listener {
 
         int id = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
 
-        Transaction transaction = Transaction.builder().actor(player).target(null).amount(amount).type(TransactionType.WITHDRAW)
-                .creationDateInMillis(System.currentTimeMillis()).id(id).build();
-        DataManager.getInstance().load(player.getUniqueId()).addTransaction(currency, transaction);
+        Transaction transaction = new Transaction(player, null, amount, TransactionType.WITHDRAW, System.currentTimeMillis(), id);
+        DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId()).addTransaction(currency, transaction);
     }
 
     public static Map<Player, Currency> getWithdrawing() {

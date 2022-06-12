@@ -1,6 +1,5 @@
 package com.zpedroo.multieconomy.objects.category;
 
-import lombok.Builder;
 import lombok.Data;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
@@ -9,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@Builder
 public class Task {
 
     private final Category category;

@@ -9,13 +9,17 @@ Currency-Settings:
     set: SET
     pay: PAY,ENVIAR,PAGAR
     top: TOP
-  currency-name: 'coins'
+  currency-name: 'coins' # Usado para mensagens e para a tag no chat - {coins}
   currency-display: '&eCoins'
   currency-color: '&e'
   amount-display: '&e{amount} ⛃'
   # Taxa cobrada a cada transação
   # efetuada (em porcentagem).
   tax-per-transaction: 10
+  top-one:
+    command: magnata
+    aliases: []
+    tag: '&2[$]'
 
 Inventory-Titles:
   main: 'Coins'

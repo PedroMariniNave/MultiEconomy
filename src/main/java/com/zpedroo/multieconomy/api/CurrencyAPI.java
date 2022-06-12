@@ -26,7 +26,7 @@ public class CurrencyAPI {
     }
 
     public static BigInteger getCurrencyAmount(UUID uuid, Currency currency) {
-        return DataManager.getInstance().load(uuid).getCurrencyAmount(currency);
+        return DataManager.getInstance().getPlayerDataByUUID(uuid).getCurrencyAmount(currency);
     }
 
     @Deprecated
@@ -35,7 +35,7 @@ public class CurrencyAPI {
     }
 
     public static List<Transaction> getCurrencyTransactions(UUID uuid, Currency currency) {
-        return DataManager.getInstance().load(uuid).getCurrencyTransactions(currency);
+        return DataManager.getInstance().getPlayerDataByUUID(uuid).getCurrencyTransactions(currency);
     }
 
     @Deprecated
@@ -44,7 +44,7 @@ public class CurrencyAPI {
     }
 
     public static void setCurrencyAmount(UUID uuid, Currency currency, BigInteger amount) {
-        DataManager.getInstance().load(uuid).setCurrencyAmount(currency, amount);
+        DataManager.getInstance().getPlayerDataByUUID(uuid).setCurrencyAmount(currency, amount);
     }
 
     @Deprecated
@@ -53,7 +53,7 @@ public class CurrencyAPI {
     }
 
     public static void addCurrencyAmount(UUID uuid, Currency currency, BigInteger amount) {
-        DataManager.getInstance().load(uuid).addCurrencyAmount(currency, amount);
+        DataManager.getInstance().getPlayerDataByUUID(uuid).addCurrencyAmount(currency, amount);
     }
 
     @Deprecated
@@ -62,6 +62,6 @@ public class CurrencyAPI {
     }
 
     public static void removeCurrencyAmount(UUID uuid, Currency currency, BigInteger amount) {
-        DataManager.getInstance().load(uuid).removeCurrencyAmount(currency, amount);
+        DataManager.getInstance().getPlayerDataByUUID(uuid).removeCurrencyAmount(currency, amount);
     }
 }

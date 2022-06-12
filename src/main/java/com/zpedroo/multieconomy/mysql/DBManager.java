@@ -126,7 +126,7 @@ public class DBManager {
                 serialized.append(transaction.getTarget() == null ? "Ninguém" : transaction.getTarget().getName()).append("#");
                 serialized.append(transaction.getAmount().toString()).append("#");
                 serialized.append(transaction.getType().toString()).append("#");
-                serialized.append(transaction.getCreationDateInMillis()).append("#");
+                serialized.append(transaction.getCreationTimestamp()).append("#");
                 serialized.append(transaction.getId()).append(",");
             }
         }
@@ -149,11 +149,11 @@ public class DBManager {
             OfflinePlayer target = Bukkit.getOfflinePlayer(strSplit[2]);
             BigInteger amount = new BigInteger(strSplit[3]);
             TransactionType type = TransactionType.valueOf(strSplit[4]);
-            long creationDateInMillis = Long.parseLong(strSplit[5]);
+            long creationTimestamp = Long.parseLong(strSplit[5]);
             int id = Integer.parseInt(strSplit[6]);
 
             List<Transaction> transactions = ret.containsKey(currency) ? ret.get(currency) : new LinkedList<>();
-            transactions.add(Transaction.builder().actor(actor).target(target).amount(amount).type(type).creationDateInMillis(creationDateInMillis).id(id).build());
+            transactions.add(new Transaction(actor, target, amount, type, creationTimestamp, id));
 
             ret.put(currency, transactions);
         }

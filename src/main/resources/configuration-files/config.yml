@@ -25,14 +25,15 @@ Messages:
   insufficient-level: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui nível suficiente! ({has}/{need})'
   need-space: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui espaço suficiente no seu inventário! ({has}/{need})'
   send-to-yourself: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode enviar {currency_name} para si mesmo!'
+  top-one-display: '&6&lVoltz&f&lMC &8&l➜ {tag} &f{player} &7com uma riqueza de {amount_display}&7!'
   sent:
     - ''
     - '&6&lVoltz&f&lMC &8&l➜ &7Transação efetuada com sucesso! Confira abaixo as informações:'
     - ''
     - ' &8▶ &7Moeda: {currency_display}'
     - ' &8▶ &7Enviado para: &f{target}'
-    - ' &8▶ &7Saldo enviado: &f{amount_display}'
-    - ' &8▶ &7Saldo recebido: &f{received_display} &7(&f-{tax}%&7)'
+    - ' &8▶ &7Saldo enviado: {amount_display}'
+    - ' &8▶ &7Saldo recebido: {received_display} &7(&f-{tax}%&7)'
     - ' &8▶ &7ID: &f#{id}'
     - ''
 
@@ -73,8 +74,13 @@ Messages:
     - ''
     - ' &8▶ &7Moeda: {currency_display}'
     - ' &8▶ &7Enviando para: &f{target}'
-    - ' &8▶ &7Saldo a ser enviado: &f{amount_display}'
-    - ' &8▶ &7Saldo a ser recebido: &f{received_display} &7(&f-{tax}%&7)'
+    - ' &8▶ &7Saldo a ser enviado: {amount_display}'
+    - ' &8▶ &7Saldo a ser recebido: {received_display} &7(&f-{tax}%&7)'
+    - ''
+
+  new-top-one:
+    - ''
+    - '&6&lVoltz&f&lMC &8&l➜ &7O jogador &f{player} &7é o novo {tag} &7com uma riqueza de {amount_display}&7!'
     - ''
 
 Next-Page:
