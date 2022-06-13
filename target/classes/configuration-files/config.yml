@@ -25,7 +25,7 @@ Messages:
   insufficient-level: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui nível suficiente! ({has}/{need})'
   need-space: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui espaço suficiente no seu inventário! ({has}/{need})'
   send-to-yourself: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode enviar {currency_name} para si mesmo!'
-  top-one-display: '&6&lVoltz&f&lMC &8&l➜ &7Jogador mais rico: {tag} &f{player} &7com uma riqueza de {amount_display}&7!'
+  top-one-display: '&6&lVoltz&f&lMC &8&l➜ {tag} &f{player} &7com uma riqueza de {amount_display}&7!'
   sent:
     - ''
     - '&6&lVoltz&f&lMC &8&l➜ &7Transação efetuada com sucesso! Confira abaixo as informações:'

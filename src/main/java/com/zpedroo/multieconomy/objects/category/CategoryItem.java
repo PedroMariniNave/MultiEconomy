@@ -23,4 +23,10 @@ public class CategoryItem {
     private final boolean inventoryLimit;
     private final boolean fixedItem;
     private final List<String> commands;
+
+    public BigInteger getStockAmount() {
+        if (stockAmount == null) stockAmount = maxStock;
+
+        return stockAmount;
+    }
 }
