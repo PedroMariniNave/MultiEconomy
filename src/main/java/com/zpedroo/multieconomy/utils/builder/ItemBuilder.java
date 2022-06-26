@@ -10,7 +10,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -107,10 +109,6 @@ public class ItemBuilder {
             builder.hideAttributes();
         }
 
-        if (file.contains(where + ".hide-enchants") && file.getBoolean(where + ".hide-enchants")) {
-            builder.hideEnchants();
-        }
-
         return builder;
     }
 
@@ -148,12 +146,7 @@ public class ItemBuilder {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return this;
 
-        if (item.getType().equals(Material.ENCHANTED_BOOK)) {
-            ((EnchantmentStorageMeta) meta).addStoredEnchant(enchantment, level, true);
-        } else {
-            meta.addEnchant(enchantment, level, true);
-        }
-
+        meta.addEnchant(enchantment, level, true);
         item.setItemMeta(meta);
         return this;
     }
@@ -194,15 +187,6 @@ public class ItemBuilder {
 
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-        item.setItemMeta(meta);
-        return this;
-    }
-
-    public ItemBuilder hideEnchants() {
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return this;
-
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(meta);
         return this;
     }

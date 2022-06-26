@@ -20,8 +20,6 @@ public class Messages {
 
     public static final String INSUFFICIENT_CURRENCY = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.insufficient-currency"));
 
-    public static final String INSUFFICIENT_LEVEL = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.insufficient-level"));
-
     public static final String NEED_SPACE = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.need-space"));
 
     public static final String MIN_VALUE = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.min-value"));

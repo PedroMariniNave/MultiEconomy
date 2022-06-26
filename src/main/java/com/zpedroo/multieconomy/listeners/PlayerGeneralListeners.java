@@ -58,7 +58,8 @@ public class PlayerGeneralListeners implements Listener {
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
 
         int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getFileName()) + 1;
-        data.addTransaction(currency, new Transaction(player, null, amount, TransactionType.DEPOSIT, System.currentTimeMillis(), id));
+        Transaction transaction = new Transaction(player, null, amount, currency, TransactionType.DEPOSIT, System.currentTimeMillis(), id);
+        transaction.register(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

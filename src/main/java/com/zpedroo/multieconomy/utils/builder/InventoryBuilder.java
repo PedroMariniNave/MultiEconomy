@@ -17,11 +17,11 @@ public class InventoryBuilder {
     private final Inventory inventory;
     private final String title;
     private final int size;
-    private final ItemStack previousPageItem;
     private final int previousPageSlot;
+    private final int nextPageSlot;
+    private final ItemStack previousPageItem;
     private final InventoryBuilder previousPageInventory;
     private final ItemStack nextPageItem;
-    private final int nextPageSlot;
     private InventoryBuilder nextPageInventory;
     private Table<Integer, ItemStack, List<Action>> defaultItems;
     private final Table<Integer, ActionType, Action> actions;
@@ -83,11 +83,11 @@ public class InventoryBuilder {
         player.closeInventory();
     }
 
-    public void addItem(@NotNull ItemStack item, @NotNull Integer slot) {
+    public void addItem(@NotNull ItemStack item, int slot) {
         addItem(item, slot, null, null);
     }
 
-    public void addItem(@NotNull ItemStack item, @NotNull Integer slot, Runnable action, ActionType actionType) {
+    public void addItem(@NotNull ItemStack item, int slot, Runnable action, ActionType actionType) {
         if (inventory.getItem(slot) != null) {
             if (nextPageInventory == null) {
                 if (nextPageItem == null || nextPageSlot == -1) return;
@@ -106,19 +106,19 @@ public class InventoryBuilder {
         addAction(slot, action, actionType);
     }
 
-    public void addAction(@NotNull Integer slot, Runnable action, ActionType actionType) {
+    public void addAction(int slot, Runnable action, ActionType actionType) {
         actions.put(slot, actionType, new Action(action, actionType));
     }
 
-    public void addDefaultItem(@NotNull ItemStack item, @NotNull Integer slot) {
+    public void addDefaultItem(@NotNull ItemStack item, int slot) {
         addDefaultItem(item, slot, null, null);
     }
 
-    public void addDefaultItem(@NotNull ItemStack item, @NotNull Integer slot, Runnable action, ActionType actionType) {
+    public void addDefaultItem(@NotNull ItemStack item, int slot, Runnable action, ActionType actionType) {
         addDefaultAction(item, slot, action, actionType);
     }
 
-    public void addDefaultAction(@NotNull ItemStack item, @NotNull Integer slot, Runnable action, ActionType actionType) {
+    public void addDefaultAction(@NotNull ItemStack item, int slot, Runnable action, ActionType actionType) {
         if (defaultItems == null) defaultItems = HashBasedTable.create();
 
         List<Action> defaultActions = defaultItems.contains(slot, item) ? defaultItems.get(slot, item) : new ArrayList<>(1);
@@ -133,7 +133,7 @@ public class InventoryBuilder {
         return inventory;
     }
 
-    protected Action getAction(@NotNull Integer slot, ActionType actionType) {
+    protected Action getAction(int slot, ActionType actionType) {
         return actions.get(slot, actionType);
     }
 }

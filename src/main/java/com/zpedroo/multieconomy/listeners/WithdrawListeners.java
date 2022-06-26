@@ -22,16 +22,16 @@ import java.util.Map;
 
 public class WithdrawListeners implements Listener {
 
-    private static final Map<Player, Currency> withdrawing = new HashMap<>(4);
+    private static final Map<Player, Currency> playersWithdrawing = new HashMap<>(4);
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
-        if (!withdrawing.containsKey(event.getPlayer())) return;
+        if (!playersWithdrawing.containsKey(event.getPlayer())) return;
 
         event.setCancelled(true);
 
         Player player = event.getPlayer();
-        Currency currency = withdrawing.remove(player);
+        Currency currency = playersWithdrawing.remove(player);
 
         BigInteger amount = NumberFormatter.getInstance().filter(event.getMessage());
         if (amount.signum() <= 0) {
@@ -40,7 +40,6 @@ public class WithdrawListeners implements Listener {
         }
 
         int taxPerTransaction = currency.getTaxPerTransaction();
-
         if (amount.compareTo(BigInteger.valueOf(taxPerTransaction)) < 0) {
             player.sendMessage(StringUtils.replaceEach(Messages.MIN_VALUE, new String[]{
                     "{tax}"
@@ -62,18 +61,21 @@ public class WithdrawListeners implements Listener {
             return;
         }
 
-        BigInteger toGive = amount.subtract(amount.multiply(BigInteger.valueOf(taxPerTransaction)).divide(BigInteger.valueOf(100)));
-        ItemStack item = currency.getItem(toGive);
-        player.getInventory().addItem(item);
-        CurrencyAPI.removeCurrencyAmount(player, currency, amount);
+        CurrencyAPI.removeCurrencyAmount(player.getUniqueId(), currency, amount);
+        BigInteger amountToGive = amount.subtract(amount.multiply(BigInteger.valueOf(taxPerTransaction)).divide(BigInteger.valueOf(100)));
+        ItemStack item = currency.getItem(amountToGive);
+        if (player.getInventory().firstEmpty() != -1) {
+            player.getInventory().addItem(item);
+        } else {
+            player.getWorld().dropItemNaturally(player.getLocation(), item);
+        }
 
-        int id = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
-
-        Transaction transaction = new Transaction(player, null, amount, TransactionType.WITHDRAW, System.currentTimeMillis(), id);
-        DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId()).addTransaction(currency, transaction);
+        int transactionId = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
+        Transaction transaction = new Transaction(player, null, amount, currency, TransactionType.WITHDRAW, System.currentTimeMillis(), transactionId);
+        transaction.register(player);
     }
 
-    public static Map<Player, Currency> getWithdrawing() {
-        return withdrawing;
+    public static Map<Player, Currency> getPlayersWithdrawing() {
+        return playersWithdrawing;
     }
 }

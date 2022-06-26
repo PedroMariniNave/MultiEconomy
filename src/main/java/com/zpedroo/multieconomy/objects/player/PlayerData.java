@@ -1,6 +1,5 @@
 package com.zpedroo.multieconomy.objects.player;
 
-import com.zpedroo.multieconomy.managers.TransactionManager;
 import com.zpedroo.multieconomy.objects.general.Currency;
 
 import java.math.BigInteger;
@@ -62,11 +61,10 @@ public class PlayerData {
     public void addTransaction(Currency currency, Transaction transaction) {
         if (getCurrencyTransactions(currency).size() == 225) getCurrencyTransactions(currency).remove(0);
 
-        TransactionManager.getInstance().registerTransaction(currency, transaction);
         List<Transaction> currencyTransactions = getCurrencyTransactions(currency);
         currencyTransactions.add(transaction);
 
-        getTransactions().put(currency, currencyTransactions);
+        transactions.put(currency, currencyTransactions);
         setUpdate(true);
     }
 

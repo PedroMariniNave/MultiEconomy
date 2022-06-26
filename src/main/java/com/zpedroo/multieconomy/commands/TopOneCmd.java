@@ -3,7 +3,6 @@ package com.zpedroo.multieconomy.commands;
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.utils.config.Messages;
-import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -31,12 +30,10 @@ public class TopOneCmd implements CommandExecutor {
         sender.sendMessage(StringUtils.replaceEach(Messages.TOP_ONE_DISPLAY, new String[]{
                 "{tag}",
                 "{player}",
-                "{amount}",
-                "{amount_display}"
+                "{amount}"
         }, new String[]{
                 currency.getTopOneTag(),
                 player.getName(),
-                NumberFormatter.getInstance().format(currencyAmount),
                 currency.getAmountDisplay(currencyAmount)
         }));
         return false;

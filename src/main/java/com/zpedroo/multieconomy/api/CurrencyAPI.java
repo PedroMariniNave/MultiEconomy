@@ -30,11 +30,11 @@ public class CurrencyAPI {
     }
 
     @Deprecated
-    public static List<Transaction> getCurrencyTransactions(OfflinePlayer player, Currency currency) {
-        return getCurrencyTransactions(player.getUniqueId(), currency);
+    public static List<Transaction> getPlayerCurrencyTransactions(OfflinePlayer player, Currency currency) {
+        return getPlayerCurrencyTransactions(player.getUniqueId(), currency);
     }
 
-    public static List<Transaction> getCurrencyTransactions(UUID uuid, Currency currency) {
+    public static List<Transaction> getPlayerCurrencyTransactions(UUID uuid, Currency currency) {
         return DataManager.getInstance().getPlayerDataByUUID(uuid).getCurrencyTransactions(currency);
     }
 

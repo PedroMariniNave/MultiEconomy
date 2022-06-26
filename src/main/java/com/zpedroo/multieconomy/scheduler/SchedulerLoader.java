@@ -3,7 +3,7 @@ package com.zpedroo.multieconomy.scheduler;
 import com.zpedroo.multieconomy.managers.DataManager;
 import com.zpedroo.multieconomy.objects.category.Category;
 import com.zpedroo.multieconomy.objects.category.Task;
-import org.bukkit.ChatColor;
+import com.zpedroo.multieconomy.utils.color.Colorize;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -52,11 +52,7 @@ public class SchedulerLoader extends SchedulerExecutor {
         String restockDate = file.getString("Settings.restock-date", null);
         if (restockDate == null || restockDate.isEmpty()) return null;
 
-        List<String> restockMessages = file.getStringList("Settings.restock-messages");
-        for (int i = 0; i < restockMessages.size(); ++i) {
-            restockMessages.set(i, ChatColor.translateAlternateColorCodes('&', restockMessages.get(i)));
-        }
-
+        List<String> restockMessages = Colorize.getColored(file.getStringList("Settings.restock-messages"));
         String formattedDate = parseDate(restockDate);
 
         return new Task(category, restockMessages, CronScheduleBuilder.cronSchedule(formattedDate));

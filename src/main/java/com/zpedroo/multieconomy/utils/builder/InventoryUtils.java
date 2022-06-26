@@ -16,11 +16,10 @@ public class InventoryUtils {
     private static InventoryUtils instance;
     public static InventoryUtils get() { return instance; }
 
-    private final Map<Player, InventoryBuilder> viewers;
+    private final Map<Player, InventoryBuilder> viewers = new HashMap<>(16);
 
     public InventoryUtils() {
         instance = this;
-        this.viewers = new HashMap<>(16);
         MultiEconomy.get().getServer().getPluginManager().registerEvents(new ActionListeners(), MultiEconomy.get());
     }
 
@@ -42,6 +41,7 @@ public class InventoryUtils {
             }
 
             event.setCancelled(true);
+
             if (event.getClickedInventory() == null) return;
             if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
 

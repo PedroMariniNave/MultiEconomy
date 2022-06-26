@@ -13,13 +13,11 @@ public class DBConnection {
 
     protected static final String TABLE = "multi_economy";
 
-    private final HikariDataSource hikari;
-    private final DBManager dbManager;
+    private final HikariDataSource hikari = new HikariDataSource();
+    private final DBManager dbManager = new DBManager();
 
     public DBConnection(FileConfiguration file) {
         instance = this;
-        this.dbManager = new DBManager();
-        this.hikari = new HikariDataSource();
 
         enable(file);
         getDBManager().createTable();
@@ -36,8 +34,6 @@ public class DBConnection {
     }
 
     public void closeConnection() {
-        if (hikari == null) return;
-
         hikari.close();
     }
 

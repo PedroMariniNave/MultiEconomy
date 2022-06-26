@@ -14,7 +14,6 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     public PlaceholderAPIHook(Plugin plugin) {
         this.plugin = plugin;
-        this.register();
     }
 
     public String getAuthor() {
@@ -34,7 +33,6 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         if (currency == null) return "0";
 
         PlayerData data = DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId());
-
         return NumberFormatter.getInstance().format(data.getCurrencyAmount(currency));
     }
 }

@@ -2,12 +2,12 @@ package com.zpedroo.multieconomy.listeners;
 
 import com.zpedroo.multieconomy.MultiEconomy;
 import com.zpedroo.multieconomy.api.CurrencyAPI;
-import com.zpedroo.multieconomy.managers.InventoryManager;
 import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.objects.category.CategoryItem;
+import com.zpedroo.multieconomy.objects.general.Purchase;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
-import com.zpedroo.onlinetime.api.OnlineTimeAPI;
+import com.zpedroo.multieconomy.utils.inventory.InventoryChecker;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -23,19 +23,19 @@ import java.util.*;
 
 public class ShopListeners implements Listener {
 
-    private static final Map<Player, PlayerChat> playerChat = new HashMap<>(8);
+    private static final Map<Player, Purchase> playersBuying = new HashMap<>(8);
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
-        if (!getPlayerChat().containsKey(event.getPlayer())) return;
+        if (!getPlayersBuying().containsKey(event.getPlayer())) return;
 
         event.setCancelled(true);
 
-        PlayerChat playerChat = getPlayerChat().remove(event.getPlayer());
-        Player player = playerChat.getPlayer();
+        Purchase purchase = getPlayersBuying().remove(event.getPlayer());
+        Player player = purchase.getPlayer();
         BigInteger amount = null;
 
-        CategoryItem item = playerChat.getItem();
+        CategoryItem item = purchase.getItem();
         Currency currency = item.getCurrency();
 
         BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(player, currency);
@@ -56,10 +56,10 @@ public class ShopListeners implements Listener {
             return;
         }
 
-        int limit = item.getDisplay().getMaxStackSize() == 1 ? 36 : 2304;
+        int limit = item.getDisplayItem().getMaxStackSize() == 1 ? 36 : 2304;
         if (amount.compareTo(BigInteger.valueOf(limit)) > 0 && item.isInventoryLimit()) amount = BigInteger.valueOf(limit);
 
-        BigInteger freeSpace = BigInteger.valueOf(InventoryManager.getInstance().getFreeSpace(player, item.getDisplay()));
+        BigInteger freeSpace = BigInteger.valueOf(InventoryChecker.getFreeSpace(player, item.getDisplayItem()));
         BigInteger toCompare = item.isInventoryLimit() ? amount : BigInteger.ONE;
         if (freeSpace.compareTo(toCompare) < 0)  {
             player.sendMessage(StringUtils.replaceEach(Messages.NEED_SPACE, new String[]{
@@ -72,13 +72,12 @@ public class ShopListeners implements Listener {
             return;
         }
 
-        if (item.getMaxStock().signum() > 0) {
-            if (amount.compareTo(item.getStockAmount()) > 0) amount = item.getStockAmount();
-            if (amount.signum() <= 0) {
-                player.sendMessage(Messages.INSUFFICIENT_STOCK);
-                return;
-            }
+        if (amount.compareTo(item.getStockAmount()) > 0) amount = item.getStockAmount();
+        if (!item.hasAvailableStock(amount)) {
+            player.sendMessage(Messages.INSUFFICIENT_STOCK);
+            return;
         }
+
         BigInteger finalPrice = price.multiply(amount);
         if (currencyAmount.compareTo(finalPrice) < 0) {
             player.sendMessage(StringUtils.replaceEach(Messages.INSUFFICIENT_CURRENCY, new String[]{
@@ -91,20 +90,7 @@ public class ShopListeners implements Listener {
             return;
         }
 
-        long playerLevel = OnlineTimeAPI.getLevel(player);
-        int requiredLevel = item.getRequiredLevel();
-        if (playerLevel < requiredLevel) {
-            player.sendMessage(StringUtils.replaceEach(Messages.INSUFFICIENT_LEVEL, new String[]{
-                    "{has}",
-                    "{need}"
-            }, new String[]{
-                    NumberFormatter.getInstance().formatDecimal(playerLevel),
-                    NumberFormatter.getInstance().formatDecimal(requiredLevel)
-            }));
-            return;
-        }
-
-        CurrencyAPI.removeCurrencyAmount(player, currency, finalPrice);
+        CurrencyAPI.removeCurrencyAmount(player.getUniqueId(), currency, finalPrice);
         if (item.getItemToGive() != null) {
             ItemStack toGive = item.getItemToGive().clone();
             if (toGive.getMaxStackSize() == 64) {
@@ -135,43 +121,20 @@ public class ShopListeners implements Listener {
                     "{amount}",
                     "{price}"
             }, new String[]{
-                    item.getDisplay().hasItemMeta() ? item.getDisplay().getItemMeta().hasDisplayName() ? item.getDisplay().getItemMeta().getDisplayName() : item.getDisplay().getType().toString() : item.getDisplay().getType().toString(),
+                    item.getDisplayItem().hasItemMeta() ? item.getDisplayItem().getItemMeta().hasDisplayName() ? item.getDisplayItem().getItemMeta().getDisplayName() : item.getDisplayItem().getType().toString() : item.getDisplayItem().getType().toString(),
                     NumberFormatter.getInstance().formatDecimal(amount.doubleValue()),
-                    StringUtils.replaceEach(currency.getAmountDisplay(), new String[]{
-                            "{amount}"
-                    }, new String[]{
-                            NumberFormatter.getInstance().format(finalPrice)
-                    })
+                    currency.getAmountDisplay(finalPrice)
             }));
         }
 
-        if (item.getMaxStock().signum() > 0) {
+        if (item.isUsingStock()) {
             item.setStockAmount(item.getStockAmount().subtract(amount));
         }
 
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
     }
 
-    public static Map<Player, PlayerChat> getPlayerChat() {
-        return playerChat;
-    }
-
-    public static class PlayerChat {
-
-        private final Player player;
-        private final CategoryItem item;
-
-        public PlayerChat(Player player, CategoryItem item) {
-            this.player = player;
-            this.item = item;
-        }
-
-        public Player getPlayer() {
-            return player;
-        }
-
-        public CategoryItem getItem() {
-            return item;
-        }
+    public static Map<Player, Purchase> getPlayersBuying() {
+        return playersBuying;
     }
 }

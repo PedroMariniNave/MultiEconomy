@@ -4,6 +4,5 @@ version: ${project.version}
 api-version: 1.8
 author: zPedroo_
 main: com.zpedroo.multieconomy.MultiEconomy
-depend: [OnlineTime]
 softdepend: [Vault, PlaceholderAPI, Legendchat]
 load: STARTUP

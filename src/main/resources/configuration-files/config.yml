@@ -8,8 +8,8 @@ MySQL:
 
 Settings:
   # A cada quantos segundos todos dados
-  # serão salvos na database.
-  save-interval: 600
+  # serão salvos na database e o top atualizado.
+  data-update-interval: 600
   # Economia que vai ser compatível com o Vault.
   vault-currency: coins
   admin-permission: multieconomy.admin
@@ -22,18 +22,17 @@ Messages:
   min-value: '&6&lVoltz&f&lMC &8&l➜ &cA quantia precisa ser acima de {tax}!'
   insufficient-stock: '&6&lVoltz&f&lMC &8&l➜ &cEsse item não possui estoque!'
   insufficient-currency: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui essa quantia! ({has}/{need})'
-  insufficient-level: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui nível suficiente! ({has}/{need})'
   need-space: '&6&lVoltz&f&lMC &8&l➜ &cVocê não possui espaço suficiente no seu inventário! ({has}/{need})'
   send-to-yourself: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode enviar {currency_name} para si mesmo!'
-  top-one-display: '&6&lVoltz&f&lMC &8&l➜ {tag} &f{player} &7com uma riqueza de {amount_display}&7!'
+  top-one-display: '&6&lVoltz&f&lMC &8&l➜ {tag} &f{player} &7com uma riqueza de {amount}&7!'
   sent:
     - ''
     - '&6&lVoltz&f&lMC &8&l➜ &7Transação efetuada com sucesso! Confira abaixo as informações:'
     - ''
-    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Moeda: {currency}'
     - ' &8▶ &7Enviado para: &f{target}'
-    - ' &8▶ &7Saldo enviado: {amount_display}'
-    - ' &8▶ &7Saldo recebido: {received_display} &7(&f-{tax}%&7)'
+    - ' &8▶ &7Saldo enviado: {amount}'
+    - ' &8▶ &7Saldo recebido: {received} &7(&f-{tax}%&7)'
     - ' &8▶ &7ID: &f#{id}'
     - ''
 
@@ -41,7 +40,7 @@ Messages:
     - ''
     - '&6&lVoltz&f&lMC &8&l➜ &7Uma nova transação foi efetuada! Confira abaixo as informações:'
     - ''
-    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Moeda: {currency}'
     - ' &8▶ &7Feita por: &f{actor}'
     - ' &8▶ &7Saldo recebido: &f{received}'
     - ' &8▶ &7ID: &f#{id}'
@@ -72,10 +71,10 @@ Messages:
     - ''
     - '&6&lVoltz&f&lMC &8&l➜ &7Digite o comando novamente para confirmar a transação!'
     - ''
-    - ' &8▶ &7Moeda: {currency_display}'
+    - ' &8▶ &7Moeda: {currency}'
     - ' &8▶ &7Enviando para: &f{target}'
-    - ' &8▶ &7Saldo a ser enviado: {amount_display}'
-    - ' &8▶ &7Saldo a ser recebido: {received_display} &7(&f-{tax}%&7)'
+    - ' &8▶ &7Saldo a ser enviado: {amount}'
+    - ' &8▶ &7Saldo a ser recebido: {received} &7(&f-{tax}%&7)'
     - ''
 
   new-top-one:

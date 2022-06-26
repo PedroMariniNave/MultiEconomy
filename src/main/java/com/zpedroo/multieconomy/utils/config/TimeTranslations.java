@@ -1,7 +1,8 @@
 package com.zpedroo.multieconomy.utils.config;
 
 import com.zpedroo.multieconomy.utils.FileUtils;
-import org.bukkit.ChatColor;
+
+import static com.zpedroo.multieconomy.utils.color.Colorize.getColored;
 
 public class TimeTranslations {
 
@@ -18,8 +19,4 @@ public class TimeTranslations {
     public static final String HOURS = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Time-Formatter.hours"));
 
     public static final String NOW = getColored(FileUtils.get().getString(FileUtils.Files.CONFIG, "Time-Formatter.now"));
-
-    private static String getColored(String str) {
-        return ChatColor.translateAlternateColorCodes('&', str);
-    }
 }

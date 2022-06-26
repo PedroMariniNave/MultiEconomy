@@ -7,11 +7,10 @@ import com.zpedroo.multieconomy.listeners.ShopListeners;
 import com.zpedroo.multieconomy.listeners.TagListeners;
 import com.zpedroo.multieconomy.listeners.WithdrawListeners;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.managers.InventoryManager;
-import com.zpedroo.multieconomy.managers.TransactionManager;
 import com.zpedroo.multieconomy.mysql.DBConnection;
 import com.zpedroo.multieconomy.scheduler.SchedulerLoader;
 import com.zpedroo.multieconomy.tasks.SaveTask;
+import com.zpedroo.multieconomy.tasks.TopUpdateTask;
 import com.zpedroo.multieconomy.utils.FileUtils;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import com.zpedroo.multieconomy.utils.menu.Menus;
@@ -49,24 +48,12 @@ public class MultiEconomy extends JavaPlugin {
         new DBConnection(getConfig());
         new NumberFormatter(getConfig());
         new DataManager();
-        new TransactionManager();
-        new InventoryManager();
         new Menus();
         new SaveTask(this);
+        new TopUpdateTask(this);
         new SchedulerLoader();
 
-        if (getServer().getPluginManager().getPlugin("Vault") != null) {
-            new VaultEconomy(this, VAULT_CURRENCY);
-        }
-
-        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new PlaceholderAPIHook(this);
-        }
-
-        if (getServer().getPluginManager().getPlugin("Legendchat") != null) {
-            getServer().getPluginManager().registerEvents(new TagListeners(), this);
-        }
-
+        registerHooks();
         registerListeners();
         startSchedulers();
     }
@@ -75,12 +62,26 @@ public class MultiEconomy extends JavaPlugin {
         if (!isMySQLEnabled(getConfig())) return;
 
         try {
-            DataManager.getInstance().saveAll();
+            DataManager.getInstance().saveAllPlayersData();
             DBConnection.getInstance().closeConnection();
             SchedulerLoader.getInstance().stopAllSchedulers();
         } catch (Exception ex) {
             getLogger().log(Level.SEVERE, "An error occurred while trying to save data!");
             ex.printStackTrace();
+        }
+    }
+
+    private void registerHooks() {
+        if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            new VaultEconomy(this, VAULT_CURRENCY);
+        }
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderAPIHook(this).register();
+        }
+
+        if (getServer().getPluginManager().getPlugin("Legendchat") != null) {
+            getServer().getPluginManager().registerEvents(new TagListeners(), this);
         }
     }
 

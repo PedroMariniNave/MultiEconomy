@@ -8,6 +8,7 @@ import com.zpedroo.multieconomy.objects.category.Category;
 import com.zpedroo.multieconomy.objects.category.CategoryItem;
 import com.zpedroo.multieconomy.objects.category.Task;
 import com.zpedroo.multieconomy.objects.general.Currency;
+import com.zpedroo.multieconomy.objects.general.Purchase;
 import com.zpedroo.multieconomy.objects.general.Shop;
 import com.zpedroo.multieconomy.objects.player.PlayerData;
 import com.zpedroo.multieconomy.objects.player.Transaction;
@@ -26,7 +27,6 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -72,7 +72,7 @@ public class Menus extends InventoryUtils {
                 switch (action) {
                     case "WITHDRAW":
                         player.closeInventory();
-                        WithdrawListeners.getWithdrawing().put(player, currency);
+                        WithdrawListeners.getPlayersWithdrawing().put(player, currency);
                         for (int i = 0; i < 25; ++i) {
                             player.sendMessage("");
                         }
@@ -138,7 +138,7 @@ public class Menus extends InventoryUtils {
         int previousPageSlot = FileUtils.get().getInt(file, "Inventory.previous-page-slot");
 
         InventoryBuilder inventory = new InventoryBuilder(title, size, previousPageItem, previousPageSlot, nextPageItem, nextPageSlot);
-        List<Transaction> transactions = CurrencyAPI.getCurrencyTransactions(player, currency);
+        List<Transaction> transactions = CurrencyAPI.getPlayerCurrencyTransactions(player, currency);
 
         if (transactions.isEmpty()) {
             ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Empty").build();
@@ -254,45 +254,19 @@ public class Menus extends InventoryUtils {
             if (item == null) continue;
             if (++i >= slots.length) i = 0;
 
-            ItemStack displayItem = item.getDisplay().clone();
-            int slot = Integer.parseInt(slots[i]);
-
-            ItemMeta meta = displayItem.getItemMeta();
             Task task = category.getTask();
-
-            if (meta.getDisplayName() != null) {
-                String displayName = meta.getDisplayName();
-                meta.setDisplayName(StringUtils.replaceEach(displayName, new String[]{
-                        "{stock_amount}",
-                        "{max_stock}",
-                        "{next_restock}"
-                }, new String[]{
-                        String.valueOf(item.getStockAmount()),
-                        String.valueOf(item.getMaxStock()),
-                        task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
-                }));
-            }
-
-            if (meta.getLore() != null) {
-                List<String> lore = meta.getLore();
-                List<String> newLore = new ArrayList<>(lore.size());
-
-                for (String lines : lore) {
-                    newLore.add(StringUtils.replaceEach(lines, new String[]{
-                            "{stock_amount}",
-                            "{max_stock}",
-                            "{next_restock}"
-                    }, new String[]{
-                            String.valueOf(item.getStockAmount()),
-                            String.valueOf(item.getMaxStock()),
-                            task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
-                    }));
-                }
-
-                meta.setLore(newLore);
-            }
-
-            displayItem.setItemMeta(meta);
+            ItemStack displayItem = item.getDisplayItemWithPlaceholdersReplaced(new String[]{
+                    "{price}",
+                    "{stock_amount}",
+                    "{max_stock}",
+                    "{next_restock}"
+            }, new String[]{
+                    item.getCurrency().getAmountDisplay(item.getPrice()),
+                    String.valueOf(item.getStockAmount()),
+                    String.valueOf(item.getMaxStock()),
+                    task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
+            });
+            int slot = Integer.parseInt(slots[i]);
 
             Runnable action = () -> {
                 if (item.getMaxStock().signum() > 0 && item.getStockAmount().signum() <= 0) {
@@ -301,13 +275,13 @@ public class Menus extends InventoryUtils {
                 }
 
                 player.closeInventory();
-                ShopListeners.getPlayerChat().put(player, new ShopListeners.PlayerChat(player, item));
+                ShopListeners.getPlayersBuying().put(player, new Purchase(player, item));
                 for (String msg : Messages.CHOOSE_AMOUNT) {
                     player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                             "{item}",
                             "{price}"
                     }, new String[]{
-                            item.getDisplay().hasItemMeta() ? item.getDisplay().getItemMeta().hasDisplayName() ? item.getDisplay().getItemMeta().getDisplayName() : item.getDisplay().getType().toString() : item.getDisplay().getType().toString(),
+                            item.getDisplayItem().hasItemMeta() ? item.getDisplayItem().getItemMeta().hasDisplayName() ? item.getDisplayItem().getItemMeta().getDisplayName() : item.getDisplayItem().getType().toString() : item.getDisplayItem().getType().toString(),
                             item.getCurrency().getAmountDisplay(item.getPrice())
                     }));
                 }
@@ -371,10 +345,8 @@ public class Menus extends InventoryUtils {
         InventoryBuilder inventory = new InventoryBuilder(title, size);
 
         String[] topSlots = FileUtils.get().getString(file, "Inventory.slots").replace(" ", "").split(",");
-
-        int pos = 0;
-
         List<PlayerData> topCurrency = DataManager.getInstance().getCache().getTopCurrencies().get(currency);
+        int pos = 0;
 
         for (PlayerData data : topCurrency) {
             int slot = Integer.parseInt(topSlots[pos]);

@@ -1,6 +1,5 @@
 package com.zpedroo.multieconomy.utils;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -19,12 +18,11 @@ public class FileUtils {
     public static FileUtils get() { return instance; }
 
     private final Plugin plugin;
-    private final Map<Files, FileManager> files;
+    private final Map<Files, FileManager> files = new HashMap<>(Files.values().length);
 
     public FileUtils(Plugin plugin) {
         instance = this;
         this.plugin = plugin;
-        this.files = new HashMap<>(Files.values().length);
 
         for (Files files : Files.values()) {
             this.files.put(files, new FileManager(files));

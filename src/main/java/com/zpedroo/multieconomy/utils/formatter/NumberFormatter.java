@@ -69,6 +69,7 @@ public class NumberFormatter {
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
         symbols.setGroupingSeparator('.');
         formatter.setDecimalFormatSymbols(symbols);
+
         return formatter.format(number);
     }
 }

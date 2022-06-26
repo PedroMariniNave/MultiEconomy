@@ -39,22 +39,18 @@ public class Currency {
             String displayName = item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : null;
             List<String> lore = item.getItemMeta().hasLore() ? item.getItemMeta().getLore() : null;
             ItemMeta meta = item.getItemMeta();
-
-            if (displayName != null) meta.setDisplayName(StringUtils.replaceEach(displayName, new String[] {
+            String[] placeholders = new String[] {
                     "{amount}"
-            }, new String[] {
+            };
+            String[] replacers = new String[] {
                     NumberFormatter.getInstance().format(amount)
-            }));
+            };
 
+            if (displayName != null) meta.setDisplayName(StringUtils.replaceEach(displayName, placeholders, replacers));
             if (lore != null) {
                 List<String> newLore = new ArrayList<>(lore.size());
-
                 for (String str : lore) {
-                    newLore.add(StringUtils.replaceEach(str, new String[] {
-                            "{amount}"
-                    }, new String[] {
-                            NumberFormatter.getInstance().format(amount)
-                    }));
+                    newLore.add(StringUtils.replaceEach(str, placeholders, replacers));
                 }
 
                 meta.setLore(newLore);
@@ -82,7 +78,10 @@ public class Currency {
     }
 
     public boolean isTopOne(UUID uuid) {
-        return getTopOneUniqueId().equals(uuid);
+        UUID topOneUniqueId = getTopOneUniqueId();
+        if (topOneUniqueId == null) return false;
+
+        return topOneUniqueId.equals(uuid);
     }
 
     /*
