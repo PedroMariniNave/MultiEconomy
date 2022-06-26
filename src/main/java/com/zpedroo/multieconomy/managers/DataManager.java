@@ -42,7 +42,7 @@ public class DataManager {
         PlayerData data = dataCache.getPlayersData().get(uuid);
         if (data == null || !data.isQueueUpdate()) return;
 
-        DBConnection.getInstance().getDBManager().saveData(data);
+        DBConnection.getInstance().getDBManager().savePlayerData(data);
         data.setUpdate(false);
     }
 

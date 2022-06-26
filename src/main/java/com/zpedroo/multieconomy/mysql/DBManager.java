@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class DBManager extends SerializationManager {
 
-    public void saveData(PlayerData data) {
+    public void savePlayerData(PlayerData data) {
         executeUpdate("REPLACE INTO `" + DBConnection.TABLE + "` (`uuid`, `currencies`, `transactions`) VALUES " +
                 "('" + data.getUUID().toString() + "', " +
                 "'" + currencySerialization.serialize(data.getCurrencies()) + "', " +

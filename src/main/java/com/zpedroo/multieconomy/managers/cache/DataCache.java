@@ -76,10 +76,10 @@ public class DataCache {
 
             String fileName = fl.getName().replace(".yml", "");
             String currencyName = file.getString("Currency-Settings.currency-name");
-            String currencyDisplay = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.currency-display"));
-            String currencyColor = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.currency-color"));
-            String amountDisplay = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.amount-display"));
-            String topOneTag = ChatColor.translateAlternateColorCodes('&', file.getString("Currency-Settings.top-one.tag", ""));
+            String currencyDisplay = Colorize.getColored(file.getString("Currency-Settings.currency-display"));
+            String currencyColor = Colorize.getColored(file.getString("Currency-Settings.currency-color"));
+            String amountDisplay = Colorize.getColored(file.getString("Currency-Settings.amount-display"));
+            String topOneTag = Colorize.getColored(file.getString("Currency-Settings.top-one.tag", ""));
             String topOneCommand = file.getString("Currency-Settings.top-one.command", null);
             List<String> topOneAliases = file.getStringList("Currency-Settings.top-one.aliases");
             int taxPerTransaction = file.getInt("Currency-Settings.tax-per-transaction", 0);
