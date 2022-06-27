@@ -84,22 +84,9 @@ public class Currency {
         return topOneUniqueId.equals(uuid);
     }
 
-    /*
-     * We need to create a unique hashcode
-     * to fix problems when using this class
-     * as HashMap key.
-     */
     @Override
     public int hashCode() {
-        StringBuilder builder = new StringBuilder(6);
-
-        for (Character character : fileName.toCharArray()) {
-            if (builder.length() > 5) break;
-
-            builder.append((int) character);
-        }
-
-        return Integer.parseInt(builder.toString());
+        return Objects.hashCode(fileName);
     }
 
     @Override
