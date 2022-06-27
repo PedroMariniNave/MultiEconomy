@@ -346,27 +346,28 @@ public class Menus extends InventoryUtils {
 
         String[] topSlots = FileUtils.get().getString(file, "Inventory.slots").replace(" ", "").split(",");
         List<PlayerData> topCurrency = DataManager.getInstance().getCache().getTopCurrencies().get(currency);
-        int pos = 0;
+        if (topCurrency != null) {
+            int pos = 0;
+            for (PlayerData data : topCurrency) {
+                int slot = Integer.parseInt(topSlots[pos]);
+                ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Item", new String[]{
+                        "{color}",
+                        "{tag}",
+                        "{player}",
+                        "{pos}",
+                        "{amount}",
+                        "{amount_display}",
+                }, new String[]{
+                        currency.getCurrencyColor(),
+                        currency.isTopOne(data.getUUID()) ? currency.getTopOneTag() + " " : "",
+                        Bukkit.getOfflinePlayer(data.getUUID()).getName(),
+                        String.valueOf(++pos),
+                        NumberFormatter.getInstance().format(data.getCurrencyAmount(currency)),
+                        currency.getAmountDisplay(data.getCurrencyAmount(currency))
+                }).build();
 
-        for (PlayerData data : topCurrency) {
-            int slot = Integer.parseInt(topSlots[pos]);
-            ItemStack item = ItemBuilder.build(FileUtils.get().getFile(file).get(), "Item", new String[]{
-                    "{color}",
-                    "{tag}",
-                    "{player}",
-                    "{pos}",
-                    "{amount}",
-                    "{amount_display}",
-            }, new String[]{
-                    currency.getCurrencyColor(),
-                    currency.isTopOne(data.getUUID()) ? currency.getTopOneTag() + " " : "",
-                    Bukkit.getOfflinePlayer(data.getUUID()).getName(),
-                    String.valueOf(++pos),
-                    NumberFormatter.getInstance().format(data.getCurrencyAmount(currency)),
-                    currency.getAmountDisplay(data.getCurrencyAmount(currency))
-            }).build();
-
-            inventory.addItem(item, slot);
+                inventory.addItem(item, slot);
+            }
         }
 
         inventory.open(player);

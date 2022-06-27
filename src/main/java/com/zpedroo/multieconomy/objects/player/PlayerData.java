@@ -68,7 +68,7 @@ public class PlayerData {
         setUpdate(true);
     }
 
-    public void setUpdate(Boolean update) {
+    public void setUpdate(boolean update) {
         this.update = update;
     }
 }

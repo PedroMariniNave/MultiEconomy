@@ -6,7 +6,6 @@ import com.zpedroo.multieconomy.mysql.DBConnection;
 import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.objects.player.PlayerData;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,21 +58,13 @@ public class DataManager {
         Map<UUID, PlayerData> allPlayersData = DBConnection.getInstance().getDBManager().getAllPlayersData();
 
         for (Currency currency : dataCache.getCurrencies().values()) {
-            Map<UUID, BigInteger> values = new HashMap<>(allPlayersData.size());
-            allPlayersData.values().forEach(data -> values.put(data.getUUID(), data.getCurrencyAmount(currency)));
+            Comparator<PlayerData> comparator = Comparator.comparing((PlayerData data) -> data.getCurrencyAmount(currency)).reversed();
+            List<PlayerData> topData = allPlayersData.values().stream().sorted(comparator).limit(10).collect(Collectors.toList());
 
-            List<PlayerData> dataList = new LinkedList<>();
-            getSorted(values).keySet().forEach(uuid -> dataList.add(DataManager.getInstance().getPlayerDataByUUID(uuid)));
-
-            ret.put(currency, dataList);
+            ret.put(currency, topData);
         }
 
         return ret;
-    }
-
-    private Map<UUID, BigInteger> getSorted(Map<UUID, BigInteger> map) {
-        return map.entrySet().stream().sorted((value1, value2) -> value2.getValue().compareTo(value1.getValue())).limit(10)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (value1, value2) -> value1, LinkedHashMap::new));
     }
 
     public DataCache getCache() {
