@@ -359,8 +359,8 @@ public class Menus extends InventoryUtils {
                         "{amount_display}",
                 }, new String[]{
                         currency.getCurrencyColor(),
-                        currency.isTopOne(data.getUUID()) ? currency.getTopOneTag() + " " : "",
-                        Bukkit.getOfflinePlayer(data.getUUID()).getName(),
+                        currency.isTopOne(data.getUniqueId()) ? currency.getTopOneTag() + " " : "",
+                        Bukkit.getOfflinePlayer(data.getUniqueId()).getName(),
                         String.valueOf(++pos),
                         NumberFormatter.getInstance().format(data.getCurrencyAmount(currency)),
                         currency.getAmountDisplay(data.getCurrencyAmount(currency))

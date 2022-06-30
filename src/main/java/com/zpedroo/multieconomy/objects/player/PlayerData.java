@@ -10,16 +10,15 @@ public class PlayerData {
     private final UUID uuid;
     private final Map<Currency, BigInteger> currencies;
     private final Map<Currency, List<Transaction>> transactions;
-    private boolean update;
+    private boolean update = false;
 
     public PlayerData(UUID uuid, Map<Currency, BigInteger> currencies, Map<Currency, List<Transaction>> transactions) {
         this.uuid = uuid;
         this.currencies = currencies == null ? new HashMap<>(4) : currencies;
         this.transactions = transactions == null ? new HashMap<>(2) : transactions;
-        this.update = false;
     }
 
-    public UUID getUUID() {
+    public UUID getUniqueId() {
         return uuid;
     }
 

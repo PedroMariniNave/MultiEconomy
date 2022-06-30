@@ -16,7 +16,7 @@ public class DBManager extends SerializationManager {
 
     public void savePlayerData(PlayerData data) {
         executeUpdate("REPLACE INTO `" + DBConnection.TABLE + "` (`uuid`, `currencies`, `transactions`) VALUES " +
-                "('" + data.getUUID().toString() + "', " +
+                "('" + data.getUniqueId().toString() + "', " +
                 "'" + currencySerialization.serialize(data.getCurrencies()) + "', " +
                 "'" + transactionSerialization.serialize(data.getTransactions()) + "');");
     }

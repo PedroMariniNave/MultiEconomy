@@ -79,7 +79,7 @@ Messages:
 
   new-top-one:
     - ''
-    - '&6&lVoltz&f&lMC &8&l➜ &7O jogador &f{player} &7é o novo {tag} &7com uma riqueza de {amount_display}&7!'
+    - '&6&lVoltz&f&lMC &8&l➜ &7O jogador &f{player} &7é o novo {tag} &7com uma riqueza de {amount}&7!'
     - ''
 
 Next-Page:

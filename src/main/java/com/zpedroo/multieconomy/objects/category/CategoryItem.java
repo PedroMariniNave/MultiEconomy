@@ -61,7 +61,7 @@ public class CategoryItem {
         return item;
     }
 
-    public boolean isUsingStock() {
+    public boolean isStockEnabled() {
         return maxStock.signum() > 0;
     }
 

@@ -7,6 +7,7 @@ import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 public class PlaceholderAPIHook extends PlaceholderExpansion {
 
@@ -28,7 +29,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         return plugin.getDescription().getVersion();
     }
 
-    public String onPlaceholderRequest(Player player, String identifier) {
+    public String onPlaceholderRequest(Player player, @NotNull String identifier) {
         Currency currency = DataManager.getInstance().getCache().getCurrencies().get(identifier);
         if (currency == null) return "0";
 

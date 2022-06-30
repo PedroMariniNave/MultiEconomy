@@ -72,7 +72,7 @@ public class ShopListeners implements Listener {
             return;
         }
 
-        if (amount.compareTo(item.getStockAmount()) > 0) amount = item.getStockAmount();
+        if (item.isStockEnabled() && amount.compareTo(item.getStockAmount()) > 0) amount = item.getStockAmount();
         if (!item.hasAvailableStock(amount)) {
             player.sendMessage(Messages.INSUFFICIENT_STOCK);
             return;
@@ -92,15 +92,15 @@ public class ShopListeners implements Listener {
 
         CurrencyAPI.removeCurrencyAmount(player.getUniqueId(), currency, finalPrice);
         if (item.getItemToGive() != null) {
-            ItemStack toGive = item.getItemToGive().clone();
-            if (toGive.getMaxStackSize() == 64) {
-                toGive.setAmount(amount.intValue());
-                player.getInventory().addItem(toGive);
+            ItemStack itemToGive = item.getItemToGive().clone();
+            if (itemToGive.getMaxStackSize() == 64) {
+                itemToGive.setAmount(amount.intValue());
+                player.getInventory().addItem(itemToGive);
                 return;
             }
 
             for (int i = 0; i < amount.intValue(); ++i) {
-                player.getInventory().addItem(toGive);
+                player.getInventory().addItem(itemToGive);
             }
         }
 
@@ -127,7 +127,7 @@ public class ShopListeners implements Listener {
             }));
         }
 
-        if (item.isUsingStock()) {
+        if (item.isStockEnabled()) {
             item.setStockAmount(item.getStockAmount().subtract(amount));
         }
 

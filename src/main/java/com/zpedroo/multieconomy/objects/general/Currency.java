@@ -70,7 +70,7 @@ public class Currency {
         List<PlayerData> topCurrency = DataManager.getInstance().getCache().getTopCurrencies().get(this);
         if (topCurrency == null || topCurrency.isEmpty()) return null;
 
-        return topCurrency.stream().findFirst().get().getUUID();
+        return topCurrency.get(0).getUniqueId();
     }
 
     public boolean isTopOne(@NotNull Player player) {
@@ -92,11 +92,9 @@ public class Currency {
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (object == null) return false;
-        if (this.getClass() != object.getClass()) return false;
+        if (object == null || getClass() != object.getClass()) return false;
 
         Currency toCompare = (Currency) object;
-
         return toCompare.getFileName().equals(fileName);
     }
 }
