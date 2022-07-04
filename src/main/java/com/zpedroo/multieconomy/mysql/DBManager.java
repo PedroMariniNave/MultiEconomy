@@ -21,7 +21,7 @@ public class DBManager extends SerializationManager {
                 "'" + transactionSerialization.serialize(data.getTransactions()) + "');");
     }
 
-    public PlayerData loadData(UUID uuid) {
+    public PlayerData getPlayerData(UUID uuid) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet result = null;
@@ -47,13 +47,13 @@ public class DBManager extends SerializationManager {
         return new PlayerData(uuid, null, null);
     }
 
-    public Map<UUID, PlayerData> getAllPlayersData() {
+    public Map<UUID, PlayerData> getAllPlayersCurrencyData() {
         Map<UUID, PlayerData> data = new HashMap<>(1024);
 
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet result = null;
-        String query = "SELECT * FROM `" + DBConnection.TABLE + "`;";
+        String query = "SELECT uuid, currencies FROM `" + DBConnection.TABLE + "`;";
 
         try {
             connection = getConnection();
@@ -63,9 +63,8 @@ public class DBManager extends SerializationManager {
             while (result.next()) {
                 UUID uuid = UUID.fromString(result.getString(1));
                 Map<Currency, BigInteger> currencies = currencySerialization.deserialize(result.getString(2));
-                Map<Currency, List<Transaction>> transactions = transactionSerialization.deserialize(result.getString(3));
 
-                data.put(uuid, new PlayerData(uuid, currencies, transactions));
+                data.put(uuid, new PlayerData(uuid, currencies, null));
             }
         } catch (Exception ex) {
             ex.printStackTrace();

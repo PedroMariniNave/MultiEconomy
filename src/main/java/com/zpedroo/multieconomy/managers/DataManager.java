@@ -24,7 +24,7 @@ public class DataManager {
     public PlayerData getPlayerDataByUUID(UUID uuid) {
         PlayerData data = dataCache.getPlayersData().get(uuid);
         if (data == null) {
-            data = DBConnection.getInstance().getDBManager().loadData(uuid);
+            data = DBConnection.getInstance().getDBManager().getPlayerData(uuid);
             dataCache.getPlayersData().put(uuid, data);
         }
 
@@ -55,7 +55,7 @@ public class DataManager {
 
     protected Map<Currency, List<PlayerData>> getTopCurrencies() {
         Map<Currency, List<PlayerData>> ret = new HashMap<>(dataCache.getCurrencies().size() * 10);
-        Map<UUID, PlayerData> allPlayersData = DBConnection.getInstance().getDBManager().getAllPlayersData();
+        Map<UUID, PlayerData> allPlayersData = DBConnection.getInstance().getDBManager().getAllPlayersCurrencyData();
 
         for (Currency currency : dataCache.getCurrencies().values()) {
             Comparator<PlayerData> comparator = Comparator.comparing((PlayerData data) -> data.getCurrencyAmount(currency)).reversed();

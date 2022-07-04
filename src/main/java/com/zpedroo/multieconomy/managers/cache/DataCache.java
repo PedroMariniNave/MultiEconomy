@@ -26,12 +26,12 @@ import java.util.*;
 @Getter
 public class DataCache {
 
-    private final Map<UUID, PlayerData> playersData = DBConnection.getInstance().getDBManager().getAllPlayersData();
+    private final Map<UUID, PlayerData> playersData = new HashMap<>(256);
+    private final Map<Currency, UUID> topsOne = new HashMap<>(4);
+    private Map<Currency, List<PlayerData>> topCurrencies = new HashMap<>(0);
     private final Map<String, Currency> currencies = getCurrenciesFromFolder();
     private final Map<String, Category> categories = getCategoriesFromFolder();
     private final Map<String, Shop> shops = getShopsFromFolder();
-    private final Map<Currency, UUID> topsOne = new HashMap<>(4);
-    private Map<Currency, List<PlayerData>> topCurrencies = new HashMap<>(0);
 
     public void setTopCurrencies(Map<Currency, List<PlayerData>> topCurrencies) {
         this.topCurrencies = topCurrencies;
