@@ -105,6 +105,10 @@ public class ItemBuilder {
             }
         }
 
+        if (file.contains(where + ".hide-enchants") && file.getBoolean(where + ".hide-enchants")) {
+            builder.hideEnchants();
+        }
+
         if (file.contains(where + ".hide-attributes") && file.getBoolean(where + ".hide-attributes")) {
             builder.hideAttributes();
         }
@@ -176,6 +180,15 @@ public class ItemBuilder {
         if (meta == null) return this;
 
         meta.addEnchant(Enchantment.LUCK, 1, false);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(meta);
+        return this;
+    }
+
+    public ItemBuilder hideEnchants() {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return this;
+
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(meta);
         return this;
