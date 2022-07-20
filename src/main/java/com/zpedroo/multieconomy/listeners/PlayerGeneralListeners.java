@@ -45,20 +45,22 @@ public class PlayerGeneralListeners implements Listener {
         PlayerData data = DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId());
         if (data == null) return;
 
-        item.setAmount(1);
+        int amountToActivate = player.isSneaking() ? item.getAmount() : 1;
+        item.setAmount(amountToActivate);
         player.getInventory().removeItem(item);
 
-        data.addCurrencyAmount(currency, amount);
+        BigInteger finalAmount = amount.multiply(BigInteger.valueOf(amountToActivate));
+        data.addCurrencyAmount(currency, finalAmount);
 
         String[] titles = currency.getTitles().get("item-activated");
-        String title = StringUtils.replace(titles[0], "{amount}", NumberFormatter.getInstance().format(amount));
-        String subtitle = StringUtils.replace(titles[1], "{amount}", NumberFormatter.getInstance().format(amount));
+        String title = StringUtils.replace(titles[0], "{amount}", NumberFormatter.getInstance().format(finalAmount));
+        String subtitle = StringUtils.replace(titles[1], "{amount}", NumberFormatter.getInstance().format(finalAmount));
 
         player.sendTitle(title, subtitle);
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
 
         int id = FileUtils.get().getInt(FileUtils.Files.IDS, "IDs." + currency.getFileName()) + 1;
-        Transaction transaction = new Transaction(player, null, amount, currency, TransactionType.DEPOSIT, System.currentTimeMillis(), id);
+        Transaction transaction = new Transaction(player, null, finalAmount, currency, TransactionType.DEPOSIT, System.currentTimeMillis(), id);
         transaction.register(player);
     }
 
