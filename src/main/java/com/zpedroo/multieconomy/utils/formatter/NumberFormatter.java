@@ -64,7 +64,7 @@ public class NumberFormatter {
         return rounded + "" + entry.getValue();
     }
 
-    public String formatDecimal(double number) {
+    public String formatThousand(double number) {
         DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
         symbols.setGroupingSeparator('.');

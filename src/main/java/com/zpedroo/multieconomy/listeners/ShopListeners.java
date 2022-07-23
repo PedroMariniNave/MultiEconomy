@@ -66,8 +66,8 @@ public class ShopListeners implements Listener {
                     "{has}",
                     "{need}"
             }, new String[]{
-                    NumberFormatter.getInstance().formatDecimal(freeSpace.doubleValue()),
-                    NumberFormatter.getInstance().formatDecimal(amount.doubleValue())
+                    NumberFormatter.getInstance().formatThousand(freeSpace.doubleValue()),
+                    NumberFormatter.getInstance().formatThousand(amount.doubleValue())
             }));
             return;
         }
@@ -122,7 +122,7 @@ public class ShopListeners implements Listener {
                     "{price}"
             }, new String[]{
                     item.getDisplayItem().hasItemMeta() ? item.getDisplayItem().getItemMeta().hasDisplayName() ? item.getDisplayItem().getItemMeta().getDisplayName() : item.getDisplayItem().getType().toString() : item.getDisplayItem().getType().toString(),
-                    NumberFormatter.getInstance().formatDecimal(amount.doubleValue()),
+                    NumberFormatter.getInstance().formatThousand(amount.doubleValue()),
                     currency.getAmountDisplay(finalPrice)
             }));
         }

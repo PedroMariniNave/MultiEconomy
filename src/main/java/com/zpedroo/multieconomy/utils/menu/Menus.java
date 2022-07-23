@@ -262,8 +262,8 @@ public class Menus extends InventoryUtils {
                     "{next_restock}"
             }, new String[]{
                     item.getCurrency().getAmountDisplay(item.getPrice()),
-                    String.valueOf(item.getStockAmount()),
-                    String.valueOf(item.getMaxStock()),
+                    NumberFormatter.getInstance().formatThousand(item.getStockAmount().doubleValue()),
+                    NumberFormatter.getInstance().formatThousand(item.getMaxStock().doubleValue()),
                     task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
             });
             int slot = Integer.parseInt(slots[i]);
