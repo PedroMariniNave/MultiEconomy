@@ -94,7 +94,8 @@ public class ShopListeners implements Listener {
         if (item.getItemToGive() != null) {
             ItemStack itemToGive = item.getItemToGive().clone();
             if (itemToGive.getMaxStackSize() == 64) {
-                itemToGive.setAmount(amount.intValue());
+                final int itemAmount = itemToGive.getAmount();
+                itemToGive.setAmount(itemAmount * amount.intValue());
                 player.getInventory().addItem(itemToGive);
                 return;
             }
