@@ -71,7 +71,7 @@ public class Menus extends InventoryUtils {
             inventory.addItem(item, slot, () -> {
                 switch (action) {
                     case "WITHDRAW":
-                        player.closeInventory();
+                        inventory.close(player);
                         WithdrawListeners.getPlayersWithdrawing().put(player, currency);
                         for (int i = 0; i < 25; ++i) {
                             player.sendMessage("");
@@ -218,7 +218,7 @@ public class Menus extends InventoryUtils {
                             break;
                         case "PLAYER":
                             player.chat("/" + command);
-                            player.closeInventory();
+                            inventory.close(player);
                             break;
 
                         case "CONSOLE":
@@ -227,7 +227,7 @@ public class Menus extends InventoryUtils {
                             }, new String[]{
                                     player.getName()
                             }));
-                            player.closeInventory();
+                            inventory.close(player);
                             break;
                     }
                 }
@@ -250,44 +250,44 @@ public class Menus extends InventoryUtils {
 
         int i = -1;
         String[] slots = file.getString("Inventory.item-slots").replace(" ", "").split(",");
-        for (CategoryItem item : category.getItems()) {
-            if (item == null) continue;
+        for (CategoryItem categoryItem : category.getItems()) {
+            if (categoryItem == null) continue;
             if (++i >= slots.length) i = 0;
 
             Task task = category.getTask();
-            ItemStack displayItem = item.getDisplayItemWithPlaceholdersReplaced(new String[]{
+            ItemStack displayItem = categoryItem.getDisplayItemWithPlaceholdersReplaced(new String[]{
                     "{price}",
                     "{stock_amount}",
                     "{max_stock}",
                     "{next_restock}"
             }, new String[]{
-                    item.getCurrency().getAmountDisplay(item.getPrice()),
-                    NumberFormatter.getInstance().formatThousand(item.getStockAmount().doubleValue()),
-                    NumberFormatter.getInstance().formatThousand(item.getMaxStock().doubleValue()),
+                    categoryItem.getCurrency().getAmountDisplay(categoryItem.getPrice()),
+                    NumberFormatter.getInstance().formatThousand(categoryItem.getStockAmount().doubleValue()),
+                    NumberFormatter.getInstance().formatThousand(categoryItem.getMaxStock().doubleValue()),
                     task == null ? "-/-" : TimeFormatter.millisToFormattedTime(task.getNextFireTimeInMillis() - System.currentTimeMillis())
             });
             int slot = Integer.parseInt(slots[i]);
 
             Runnable action = () -> {
-                if (item.getMaxStock().signum() > 0 && item.getStockAmount().signum() <= 0) {
+                if (categoryItem.isStockEnabled() && categoryItem.getStockAmount().signum() <= 0) {
                     player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1f, 1f);
                     return;
                 }
 
-                player.closeInventory();
-                ShopListeners.getPlayersBuying().put(player, new Purchase(player, item));
+                inventory.close(player);
+                ShopListeners.getPlayersBuying().put(player, new Purchase(player, categoryItem));
                 for (String msg : Messages.CHOOSE_AMOUNT) {
                     player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                             "{item}",
                             "{price}"
                     }, new String[]{
-                            item.getDisplayItem().hasItemMeta() ? item.getDisplayItem().getItemMeta().hasDisplayName() ? item.getDisplayItem().getItemMeta().getDisplayName() : item.getDisplayItem().getType().toString() : item.getDisplayItem().getType().toString(),
-                            item.getCurrency().getAmountDisplay(item.getPrice())
+                            categoryItem.getDisplayItem().hasItemMeta() ? categoryItem.getDisplayItem().getItemMeta().hasDisplayName() ? categoryItem.getDisplayItem().getItemMeta().getDisplayName() : categoryItem.getDisplayItem().getType().toString() : categoryItem.getDisplayItem().getType().toString(),
+                            categoryItem.getCurrency().getAmountDisplay(categoryItem.getPrice())
                     }));
                 }
             };
 
-            if (item.isFixedItem()) {
+            if (categoryItem.isFixedItem()) {
                 inventory.addDefaultItem(displayItem, slot, action, ActionType.ALL_CLICKS);
             } else {
                 inventory.addItem(displayItem, slot, action, ActionType.ALL_CLICKS);

@@ -27,23 +27,23 @@ public class ShopListeners implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent event) {
-        if (!getPlayersBuying().containsKey(event.getPlayer())) return;
+        if (!playersBuying.containsKey(event.getPlayer())) return;
 
         event.setCancelled(true);
 
-        Purchase purchase = getPlayersBuying().remove(event.getPlayer());
+        Purchase purchase = playersBuying.remove(event.getPlayer());
         Player player = purchase.getPlayer();
         BigInteger amount = null;
 
         CategoryItem item = purchase.getItem();
         Currency currency = item.getCurrency();
 
-        BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(player, currency);
+        BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(player.getUniqueId(), currency);
         BigInteger price = item.getPrice();
 
         if (StringUtils.equals(event.getMessage(), "*")) {
             amount = currencyAmount.divide(price);
-            if (amount.signum() <= 0) {
+            if (isInvalidValue(amount)) {
                 player.sendMessage(Messages.BUY_ALL_ZERO);
                 return;
             }
@@ -51,7 +51,7 @@ public class ShopListeners implements Listener {
             amount = NumberFormatter.getInstance().filter(event.getMessage());
         }
 
-        if (amount.signum() <= 0) {
+        if (isInvalidValue(amount)) {
             player.sendMessage(Messages.INVALID_AMOUNT);
             return;
         }
@@ -91,6 +91,22 @@ public class ShopListeners implements Listener {
         }
 
         CurrencyAPI.removeCurrencyAmount(player.getUniqueId(), currency, finalPrice);
+        givePurchasedItems(player, amount, item);
+        executePurchaseCommands(player, amount, item);
+        sendPurchasedMessages(player, amount, item, currency, finalPrice);
+
+        if (item.isStockEnabled()) {
+            item.setStockAmount(item.getStockAmount().subtract(amount));
+        }
+
+        player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
+    }
+
+    private boolean isInvalidValue(BigInteger amount) {
+        return amount.signum() <= 0;
+    }
+
+    private void givePurchasedItems(Player player, BigInteger amount, CategoryItem item) {
         if (item.getItemToGive() != null) {
             ItemStack itemToGive = item.getItemToGive().clone();
             if (itemToGive.getMaxStackSize() == 64) {
@@ -104,7 +120,9 @@ public class ShopListeners implements Listener {
                 player.getInventory().addItem(itemToGive);
             }
         }
+    }
 
+    private void executePurchaseCommands(Player player, BigInteger amount, CategoryItem item) {
         for (String cmd : item.getCommands()) {
             final BigInteger finalAmount = amount;
             MultiEconomy.get().getServer().getScheduler().runTaskLater(MultiEconomy.get(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), StringUtils.replaceEach(cmd, new String[]{
@@ -115,7 +133,9 @@ public class ShopListeners implements Listener {
                     finalAmount.multiply(item.getDefaultAmount()).toString()
             })), 0L);
         }
+    }
 
+    private void sendPurchasedMessages(Player player, BigInteger amount, CategoryItem item, Currency currency, BigInteger price) {
         for (String msg : Messages.SUCCESSFUL_PURCHASED) {
             player.sendMessage(StringUtils.replaceEach(msg, new String[]{
                     "{item}",
@@ -124,15 +144,9 @@ public class ShopListeners implements Listener {
             }, new String[]{
                     item.getDisplayItem().hasItemMeta() ? item.getDisplayItem().getItemMeta().hasDisplayName() ? item.getDisplayItem().getItemMeta().getDisplayName() : item.getDisplayItem().getType().toString() : item.getDisplayItem().getType().toString(),
                     NumberFormatter.getInstance().formatThousand(amount.doubleValue()),
-                    currency.getAmountDisplay(finalPrice)
+                    currency.getAmountDisplay(price)
             }));
         }
-
-        if (item.isStockEnabled()) {
-            item.setStockAmount(item.getStockAmount().subtract(amount));
-        }
-
-        player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
     }
 
     public static Map<Player, Purchase> getPlayersBuying() {
