@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.zpedroo.multieconomy.utils.config.Settings.*;
+import static com.zpedroo.multieconomy.utils.number.NumberUtils.*;
 
 public class CurrencyCmd implements CommandExecutor {
 
@@ -62,7 +63,7 @@ public class CurrencyCmd implements CommandExecutor {
                     }
 
                     amount = NumberFormatter.getInstance().filter(args[2]);
-                    if (isInvalidAmount(amount)) {
+                    if (isInvalidValue(amount)) {
                         player.sendMessage(Messages.INVALID_AMOUNT);
                         return true;
                     }
@@ -115,7 +116,7 @@ public class CurrencyCmd implements CommandExecutor {
                     }
 
                     amount = NumberFormatter.getInstance().filter(args[2]);
-                    if (isInvalidAmount(amount)) {
+                    if (isInvalidValue(amount)) {
                         sender.sendMessage(Messages.INVALID_AMOUNT);
                         return true;
                     }
@@ -139,7 +140,7 @@ public class CurrencyCmd implements CommandExecutor {
                     }
 
                     amount = NumberFormatter.getInstance().filter(args[2]);
-                    if (isInvalidAmount(amount)) {
+                    if (isInvalidValue(amount)) {
                         sender.sendMessage(Messages.INVALID_AMOUNT);
                         return true;
                     }
@@ -173,14 +174,6 @@ public class CurrencyCmd implements CommandExecutor {
         return player.getUniqueId().equals(target.getUniqueId());
     }
 
-    private boolean isSameValue(BigInteger value, BigInteger toCompare) {
-        return value.compareTo(toCompare) == 0;
-    }
-
-    private boolean isBiggerOrEqualValue(BigInteger value, BigInteger toCompare) {
-        return value.compareTo(toCompare) >= 0;
-    }
-
     private CommandKeys getKeyByName(String str) {
         if (str != null && !str.isEmpty()) {
             for (CommandKeys keys : CommandKeys.values()) {
@@ -198,10 +191,6 @@ public class CurrencyCmd implements CommandExecutor {
         } else {
             target.getWorld().dropItemNaturally(target.getLocation(), item);
         }
-    }
-
-    private boolean isInvalidAmount(BigInteger amount) {
-        return amount.signum() <= 0;
     }
 
     private enum CommandKeys {

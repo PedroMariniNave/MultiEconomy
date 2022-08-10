@@ -2,8 +2,8 @@ package com.zpedroo.multieconomy.listeners;
 
 import com.zpedroo.multieconomy.MultiEconomy;
 import com.zpedroo.multieconomy.api.CurrencyAPI;
-import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.objects.category.CategoryItem;
+import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.objects.general.Purchase;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
@@ -19,7 +19,10 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.zpedroo.multieconomy.utils.number.NumberUtils.isInvalidValue;
 
 public class ShopListeners implements Listener {
 
@@ -100,10 +103,6 @@ public class ShopListeners implements Listener {
         }
 
         player.playSound(player.getLocation(), Sound.ITEM_PICKUP, 0.5f, 10f);
-    }
-
-    private boolean isInvalidValue(BigInteger amount) {
-        return amount.signum() <= 0;
     }
 
     private void givePurchasedItems(Player player, BigInteger amount, CategoryItem item) {

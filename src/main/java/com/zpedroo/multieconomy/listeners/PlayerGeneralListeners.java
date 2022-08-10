@@ -22,6 +22,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.math.BigInteger;
 
+import static com.zpedroo.multieconomy.utils.number.NumberUtils.isInvalidValue;
+
 public class PlayerGeneralListeners implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -39,7 +41,7 @@ public class PlayerGeneralListeners implements Listener {
         if (currency == null) return;
 
         BigInteger amount = new BigInteger(nbt.getString("CurrencyAmount"));
-        if (amount.signum() <= 0) return;
+        if (isInvalidValue(amount)) return;
 
         Player player = event.getPlayer();
         PlayerData data = DataManager.getInstance().getPlayerDataByUUID(player.getUniqueId());

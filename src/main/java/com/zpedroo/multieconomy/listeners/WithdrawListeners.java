@@ -2,7 +2,6 @@ package com.zpedroo.multieconomy.listeners;
 
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.enums.TransactionType;
-import com.zpedroo.multieconomy.managers.DataManager;
 import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.objects.player.Transaction;
 import com.zpedroo.multieconomy.utils.FileUtils;
@@ -20,6 +19,9 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.zpedroo.multieconomy.utils.number.NumberUtils.isBiggerOrEqualValue;
+import static com.zpedroo.multieconomy.utils.number.NumberUtils.isInvalidValue;
+
 public class WithdrawListeners implements Listener {
 
     private static final Map<Player, Currency> playersWithdrawing = new HashMap<>(4);
@@ -34,7 +36,7 @@ public class WithdrawListeners implements Listener {
         Currency currency = playersWithdrawing.remove(player);
 
         BigInteger amount = NumberFormatter.getInstance().filter(event.getMessage());
-        if (amount.signum() <= 0) {
+        if (isInvalidValue(amount)) {
             player.sendMessage(Messages.INVALID_AMOUNT);
             return;
         }
@@ -50,7 +52,7 @@ public class WithdrawListeners implements Listener {
         }
 
         BigInteger currencyAmount = CurrencyAPI.getCurrencyAmount(player, currency);
-        if (currencyAmount.compareTo(amount) < 0) {
+        if (!isBiggerOrEqualValue(currencyAmount, amount)) {
             player.sendMessage(StringUtils.replaceEach(Messages.INSUFFICIENT_CURRENCY, new String[]{
                     "{has}",
                     "{need}"
@@ -64,15 +66,19 @@ public class WithdrawListeners implements Listener {
         CurrencyAPI.removeCurrencyAmount(player.getUniqueId(), currency, amount);
         BigInteger amountToGive = amount.subtract(amount.multiply(BigInteger.valueOf(taxPerTransaction)).divide(BigInteger.valueOf(100)));
         ItemStack item = currency.getItem(amountToGive);
+        givePlayerItem(player, item);
+
+        int transactionId = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
+        Transaction transaction = new Transaction(player, null, amount, currency, TransactionType.WITHDRAW, System.currentTimeMillis(), transactionId);
+        transaction.register(player);
+    }
+
+    private void givePlayerItem(Player player, ItemStack item) {
         if (player.getInventory().firstEmpty() != -1) {
             player.getInventory().addItem(item);
         } else {
             player.getWorld().dropItemNaturally(player.getLocation(), item);
         }
-
-        int transactionId = FileUtils.get().getInt(FileUtils.Files.IDS, "Ids." + currency.getFileName()) + 1;
-        Transaction transaction = new Transaction(player, null, amount, currency, TransactionType.WITHDRAW, System.currentTimeMillis(), transactionId);
-        transaction.register(player);
     }
 
     public static Map<Player, Currency> getPlayersWithdrawing() {
