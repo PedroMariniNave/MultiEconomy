@@ -21,13 +21,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.zpedroo.multieconomy.utils.config.Settings.*;
+
 public class CurrencyCmd implements CommandExecutor {
 
-    private static Currency currency;
+    private final Currency currency;
     private final Map<Player, TransactionConfirmation> confirmations = new HashMap<>(8);
 
     public CurrencyCmd(Currency currency) {
-        CurrencyCmd.currency = currency;
+        this.currency = currency;
     }
 
     @Override
@@ -203,11 +205,11 @@ public class CurrencyCmd implements CommandExecutor {
     }
 
     private enum CommandKeys {
-        GIVE(currency.getCommandKeyNames("GIVE")),
-        SET(currency.getCommandKeyNames("SET")),
-        PAY(currency.getCommandKeyNames("PAY")),
-        TOP(currency.getCommandKeyNames("TOP")),
-        ITEM(currency.getCommandKeyNames("ITEM"));
+        GIVE(GIVE_KEYS),
+        SET(SET_KEYS),
+        PAY(PAY_KEYS),
+        TOP(TOP_KEYS),
+        ITEM(ITEM_KEYS);
 
         private final List<String> keyNames;
 

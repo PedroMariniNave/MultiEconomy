@@ -52,7 +52,6 @@ public class DataCache {
 
             Map<String, String[]> titles = getTitlesFromFile(file);
             Map<String, String> inventoryTitles = getInventoryTitlesFromFile(file);
-            Map<String, List<String>> commandKeys = getCommandKeysFromFile(file);
             String fileName = fl.getName().replace(".yml", "");
             String currencyName = file.getString("Currency-Settings.currency-name");
             String currencyDisplay = Colorize.getColored(file.getString("Currency-Settings.currency-display"));
@@ -64,7 +63,7 @@ public class DataCache {
             int taxPerTransaction = file.getInt("Currency-Settings.tax-per-transaction", 0);
             ItemStack item = ItemBuilder.build(file, "Item").build();
 
-            Currency currency = new Currency(titles, inventoryTitles, commandKeys, fileName, currencyName, currencyDisplay, currencyColor, amountDisplay, topOneTag, taxPerTransaction, item);
+            Currency currency = new Currency(titles, inventoryTitles, fileName, currencyName, currencyDisplay, currencyColor, amountDisplay, topOneTag, taxPerTransaction, item);
             ret.put(fileName, currency);
 
             MultiEconomy.get().registerCommand(command, aliases, permission, permissionMessage, new CurrencyCmd(currency));
@@ -182,16 +181,5 @@ public class DataCache {
             inventoryTitles.put(inventory, title);
         }
         return inventoryTitles;
-    }
-
-    @NotNull
-    private static Map<String, List<String>> getCommandKeysFromFile(FileConfiguration file) {
-        Map<String, List<String>> commandKeys = new HashMap<>(4);
-        for (String keyName : file.getConfigurationSection("Currency-Settings.keys").getKeys(false)) {
-            List<String> keys = file.getStringList("Currency-Settings.keys." + keyName);
-
-            commandKeys.put(keyName.toUpperCase(), keys);
-        }
-        return commandKeys;
     }
 }

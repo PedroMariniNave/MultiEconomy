@@ -14,6 +14,17 @@ Settings:
   vault-currency: coins
   admin-permission: multieconomy.admin
   permission-message: '&cVocê não possui permissão para executar esse comando!'
+  keys:
+    item: [ITEM]
+    top: [TOP]
+    set: [SET]
+    give:
+      - GIVE
+      - ADD
+    pay:
+      - PAY
+      - ENVIAR
+      - PAGAR
 
 Messages:
   buy-all-zero: '&6&lVoltz&f&lMC &8&l➜ &cVocê não pode comprar nenhum item!'

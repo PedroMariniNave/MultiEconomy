@@ -4,16 +4,6 @@ Currency-Settings:
   # Para não usar, basta remover.
   permission: 'coins.use'
   permission-message: '&cVocê não possui permissão para executar esse comando!'
-  keys:
-    top: [TOP]
-    set: [SET]
-    give:
-      - GIVE
-      - ADD
-    pay:
-      - PAY
-      - ENVIAR
-      - PAGAR
   currency-name: 'coins' # Usado para mensagens e para a tag no chat - {coins}
   currency-display: '&eCoins'
   currency-color: '&e'
