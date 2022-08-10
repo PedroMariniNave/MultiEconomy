@@ -5,6 +5,7 @@ Currency-Settings:
   permission: 'coins.use'
   permission-message: '&cVocê não possui permissão para executar esse comando!'
   keys:
+    item: [ITEM]
     top: [TOP]
     set: [SET]
     give:

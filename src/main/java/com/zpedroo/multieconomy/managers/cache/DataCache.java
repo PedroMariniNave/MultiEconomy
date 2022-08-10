@@ -190,7 +190,7 @@ public class DataCache {
         for (String keyName : file.getConfigurationSection("Currency-Settings.keys").getKeys(false)) {
             List<String> keys = file.getStringList("Currency-Settings.keys." + keyName);
 
-            commandKeys.put(keyName, keys);
+            commandKeys.put(keyName.toUpperCase(), keys);
         }
         return commandKeys;
     }

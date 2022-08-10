@@ -182,7 +182,8 @@ public class CurrencyCmd implements CommandExecutor {
     private CommandKeys getKeyByName(String str) {
         if (str != null && !str.isEmpty()) {
             for (CommandKeys keys : CommandKeys.values()) {
-                if (keys.getKeyNames().contains(str)) return keys;
+                boolean contains = keys.getKeyNames().stream().anyMatch(str::equalsIgnoreCase);
+                if (contains) return keys;
             }
         }
 
@@ -207,6 +208,7 @@ public class CurrencyCmd implements CommandExecutor {
         PAY(currency.getCommandKeyNames("PAY")),
         TOP(currency.getCommandKeyNames("TOP")),
         ITEM(currency.getCommandKeyNames("ITEM"));
+
         private final List<String> keyNames;
 
         CommandKeys(List<String> keyNames) {
