@@ -5,7 +5,6 @@ import com.zpedroo.multieconomy.commands.CategoryCmd;
 import com.zpedroo.multieconomy.commands.CurrencyCmd;
 import com.zpedroo.multieconomy.commands.ShopCmd;
 import com.zpedroo.multieconomy.commands.TopOneCmd;
-import com.zpedroo.multieconomy.mysql.DBConnection;
 import com.zpedroo.multieconomy.objects.category.Category;
 import com.zpedroo.multieconomy.objects.category.CategoryItem;
 import com.zpedroo.multieconomy.objects.general.Currency;
@@ -15,28 +14,28 @@ import com.zpedroo.multieconomy.utils.builder.ItemBuilder;
 import com.zpedroo.multieconomy.utils.color.Colorize;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
 
 @Getter
+@Setter
 public class DataCache {
 
+    private Map<Currency, List<PlayerData>> topCurrencies = new HashMap<>(4);
     private final Map<UUID, PlayerData> playersData = new HashMap<>(256);
     private final Map<Currency, UUID> topsOne = new HashMap<>(4);
-    private Map<Currency, List<PlayerData>> topCurrencies = new HashMap<>(0);
     private final Map<String, Currency> currencies = getCurrenciesFromFolder();
     private final Map<String, Category> categories = getCategoriesFromFolder();
     private final Map<String, Shop> shops = getShopsFromFolder();
 
-    public void setTopCurrencies(Map<Currency, List<PlayerData>> topCurrencies) {
-        this.topCurrencies = topCurrencies;
-    }
-
+    @NotNull
     private Map<String, Currency> getCurrenciesFromFolder() {
         Map<String, Currency> ret = new HashMap<>(4);
         File folder = new File(MultiEconomy.get().getDataFolder(), "/currencies");
@@ -51,28 +50,9 @@ public class DataCache {
             String permission = file.getString("Currency-Settings.permission", null);
             String permissionMessage = Colorize.getColored(file.getString("Currency-Settings.permission-message", null));
 
-            Map<String, String[]> titles = new HashMap<>(1);
-            for (String str : file.getConfigurationSection("Titles").getKeys(false)) {
-                String title = Colorize.getColored(file.getString("Titles." + str + ".title"));
-                String subtitle = Colorize.getColored(file.getString("Titles." + str + ".subtitle"));
-
-                titles.put(str, new String[] { title, subtitle });
-            }
-
-            Map<String, String> inventoryTitles = new HashMap<>(4);
-            for (String inventory : file.getConfigurationSection("Inventory-Titles").getKeys(false)) {
-                String title = Colorize.getColored(file.getString("Inventory-Titles." + inventory));
-
-                inventoryTitles.put(inventory, title);
-            }
-
-            Map<String, String> commandKeys = new HashMap<>(4);
-            for (String keyName : file.getConfigurationSection("Currency-Settings.keys").getKeys(false)) {
-                String keys = file.getString("Currency-Settings.keys." + keyName);
-
-                commandKeys.put(keyName, keys);
-            }
-
+            Map<String, String[]> titles = getTitlesFromFile(file);
+            Map<String, String> inventoryTitles = getInventoryTitlesFromFile(file);
+            Map<String, List<String>> commandKeys = getCommandKeysFromFile(file);
             String fileName = fl.getName().replace(".yml", "");
             String currencyName = file.getString("Currency-Settings.currency-name");
             String currencyDisplay = Colorize.getColored(file.getString("Currency-Settings.currency-display"));
@@ -97,6 +77,7 @@ public class DataCache {
         return ret;
     }
 
+    @NotNull
     private Map<String, Category> getCategoriesFromFolder() {
         Map<String, Category> ret = new HashMap<>(4);
         File folder = new File(MultiEconomy.get().getDataFolder(), "/categories");
@@ -125,6 +106,7 @@ public class DataCache {
         return ret;
     }
 
+    @NotNull
     private List<CategoryItem> getCategoryItemsFromFile(FileConfiguration file) {
         List<CategoryItem> ret = new ArrayList<>(8);
 
@@ -152,6 +134,7 @@ public class DataCache {
         return ret;
     }
 
+    @NotNull
     private Map<String, Shop> getShopsFromFolder() {
         Map<String, Shop> ret = new HashMap<>(4);
         File folder = new File(MultiEconomy.get().getDataFolder(), "/shops");
@@ -176,5 +159,39 @@ public class DataCache {
         }
 
         return ret;
+    }
+
+    @NotNull
+    private static Map<String, String[]> getTitlesFromFile(FileConfiguration file) {
+        Map<String, String[]> titles = new HashMap<>(1);
+        for (String str : file.getConfigurationSection("Titles").getKeys(false)) {
+            String title = Colorize.getColored(file.getString("Titles." + str + ".title"));
+            String subtitle = Colorize.getColored(file.getString("Titles." + str + ".subtitle"));
+
+            titles.put(str, new String[] { title, subtitle });
+        }
+        return titles;
+    }
+
+    @NotNull
+    private static Map<String, String> getInventoryTitlesFromFile(FileConfiguration file) {
+        Map<String, String> inventoryTitles = new HashMap<>(4);
+        for (String inventory : file.getConfigurationSection("Inventory-Titles").getKeys(false)) {
+            String title = Colorize.getColored(file.getString("Inventory-Titles." + inventory));
+
+            inventoryTitles.put(inventory, title);
+        }
+        return inventoryTitles;
+    }
+
+    @NotNull
+    private static Map<String, List<String>> getCommandKeysFromFile(FileConfiguration file) {
+        Map<String, List<String>> commandKeys = new HashMap<>(4);
+        for (String keyName : file.getConfigurationSection("Currency-Settings.keys").getKeys(false)) {
+            List<String> keys = file.getStringList("Currency-Settings.keys." + keyName);
+
+            commandKeys.put(keyName, keys);
+        }
+        return commandKeys;
     }
 }

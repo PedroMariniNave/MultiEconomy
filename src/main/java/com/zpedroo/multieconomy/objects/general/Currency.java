@@ -19,7 +19,7 @@ public class Currency {
 
     private final Map<String, String[]> titles;
     private final Map<String, String> inventoryTitles;
-    private final Map<String, String> commandKeys;
+    private final Map<String, List<String>> commandKeys;
     private final String fileName;
     private final String currencyName;
     private final String currencyDisplay;
@@ -82,6 +82,10 @@ public class Currency {
         if (topOneUniqueId == null) return false;
 
         return topOneUniqueId.equals(uuid);
+    }
+
+    public List<String> getCommandKeyNames(String key) {
+        return commandKeys.get(key);
     }
 
     @Override

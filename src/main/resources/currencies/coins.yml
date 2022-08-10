@@ -5,10 +5,15 @@ Currency-Settings:
   permission: 'coins.use'
   permission-message: '&cVocê não possui permissão para executar esse comando!'
   keys:
-    give: GIVE,ADD
-    set: SET
-    pay: PAY,ENVIAR,PAGAR
-    top: TOP
+    top: [TOP]
+    set: [SET]
+    give:
+      - GIVE
+      - ADD
+    pay:
+      - PAY
+      - ENVIAR
+      - PAGAR
   currency-name: 'coins' # Usado para mensagens e para a tag no chat - {coins}
   currency-display: '&eCoins'
   currency-color: '&e'

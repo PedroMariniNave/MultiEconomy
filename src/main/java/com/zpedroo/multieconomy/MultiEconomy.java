@@ -9,8 +9,7 @@ import com.zpedroo.multieconomy.listeners.WithdrawListeners;
 import com.zpedroo.multieconomy.managers.DataManager;
 import com.zpedroo.multieconomy.mysql.DBConnection;
 import com.zpedroo.multieconomy.scheduler.SchedulerLoader;
-import com.zpedroo.multieconomy.tasks.SaveTask;
-import com.zpedroo.multieconomy.tasks.TopUpdateTask;
+import com.zpedroo.multieconomy.tasks.DataUpdateTask;
 import com.zpedroo.multieconomy.utils.FileUtils;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
 import com.zpedroo.multieconomy.utils.menu.Menus;
@@ -28,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.zpedroo.multieconomy.utils.config.Settings.*;
+import static com.zpedroo.multieconomy.utils.config.Settings.VAULT_CURRENCY;
 
 public class MultiEconomy extends JavaPlugin {
 
@@ -49,8 +48,7 @@ public class MultiEconomy extends JavaPlugin {
         new NumberFormatter(getConfig());
         new DataManager();
         new Menus();
-        new SaveTask(this);
-        new TopUpdateTask(this);
+        new DataUpdateTask(this);
         new SchedulerLoader();
 
         registerHooks();
@@ -120,8 +118,6 @@ public class MultiEconomy extends JavaPlugin {
     }
 
     private boolean isMySQLEnabled(FileConfiguration file) {
-        if (!file.contains("MySQL.enabled")) return false;
-
-        return file.getBoolean("MySQL.enabled");
+        return file.getBoolean("MySQL.enabled", false);
     }
 }

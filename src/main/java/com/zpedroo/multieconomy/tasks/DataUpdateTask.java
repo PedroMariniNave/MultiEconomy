@@ -2,7 +2,6 @@ package com.zpedroo.multieconomy.tasks;
 
 import com.zpedroo.multieconomy.api.CurrencyAPI;
 import com.zpedroo.multieconomy.managers.DataManager;
-import com.zpedroo.multieconomy.managers.cache.DataCache;
 import com.zpedroo.multieconomy.objects.general.Currency;
 import com.zpedroo.multieconomy.utils.config.Messages;
 import com.zpedroo.multieconomy.utils.formatter.NumberFormatter;
@@ -18,24 +17,27 @@ import java.util.UUID;
 
 import static com.zpedroo.multieconomy.utils.config.Settings.DATA_UPDATE_INTERVAL_IN_SECONDS;
 
-public class TopUpdateTask extends BukkitRunnable {
+public class DataUpdateTask extends BukkitRunnable {
 
-    private final DataCache dataCache = DataManager.getInstance().getCache();
+    private final DataManager dataManager = DataManager.getInstance();
 
-    public TopUpdateTask(Plugin plugin) {
+    public DataUpdateTask(Plugin plugin) {
         this.runTaskTimerAsynchronously(plugin, DATA_UPDATE_INTERVAL_IN_SECONDS * 20L, DATA_UPDATE_INTERVAL_IN_SECONDS * 20L);
     }
 
     @Override
     public void run() {
-        for (Currency currency : dataCache.getCurrencies().values()) {
+        dataManager.saveAllPlayersData();
+        dataManager.updateTopCurrencies();
+
+        for (Currency currency : dataManager.getCache().getCurrencies().values()) {
             if (currency.getTopOneTag().isEmpty()) continue; // disabled
 
             UUID newTopOneUniqueId = currency.getTopOneUniqueId();
-            UUID oldCachedTopOneUniqueId = dataCache.getTopsOne().get(currency);
+            UUID oldCachedTopOneUniqueId = dataManager.getCache().getTopsOne().get(currency);
             if (isSamePlayer(newTopOneUniqueId, oldCachedTopOneUniqueId)) continue;
 
-            dataCache.getTopsOne().put(currency, newTopOneUniqueId);
+            dataManager.getCache().getTopsOne().put(currency, newTopOneUniqueId);
             if (oldCachedTopOneUniqueId == null) continue;
 
             OfflinePlayer newTopPlayer = Bukkit.getOfflinePlayer(newTopOneUniqueId);
@@ -59,7 +61,7 @@ public class TopUpdateTask extends BukkitRunnable {
         }
     }
 
-    private void playThunder(OfflinePlayer newTopPlayer) {
+    private void playThunder (OfflinePlayer newTopPlayer){
         // double sound = extra thunder effect
         if (newTopPlayer.isOnline()) {
             newTopPlayer.getPlayer().getWorld().strikeLightningEffect(newTopPlayer.getPlayer().getLocation());
@@ -72,7 +74,7 @@ public class TopUpdateTask extends BukkitRunnable {
         }
     }
 
-    private boolean isSamePlayer(UUID firstUniqueId, UUID secondUniqueId) {
+    private boolean isSamePlayer (UUID firstUniqueId, UUID secondUniqueId) {
         if (firstUniqueId == null || secondUniqueId == null) return false;
 
         return firstUniqueId.equals(secondUniqueId);
